@@ -21,4 +21,20 @@ export const api = {
     req<{ node_id: string }>(`/nodes`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }),
   removeNode: (nid: string) =>
     req<{ removed: string }>(`/nodes/${nid}`, { method: 'DELETE' }),
+  nodeDetail: (nid: string) =>
+    req<{ node_id: string; lat: number; lng: number; span_m: number; telemetry: import('../types/protocol').Telemetry | null; binding: { node_id: string; device_id: string | null; gain: number } }>(`/nodes/${nid}`),
+  renameNode: (nid: string, new_id: string) =>
+    req<{ node_id: string }>(`/nodes/${nid}/rename`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ new_id }) }),
+  repositionNode: (nid: string, body: { lat: number; lng: number; span_m?: number | null; after?: string | null | 'KEEP' }) =>
+    req<{ node_id: string }>(`/nodes/${nid}/position`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }),
+  calibrateNode: (nid: string, gain: number) =>
+    req<{ node_id: string; gain: number }>(`/nodes/${nid}/calibrate`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ gain }) }),
+  bindNode: (nid: string, device_id: string | null) =>
+    req<{ node_id: string; device_id: string | null; gain: number }>(`/nodes/${nid}/bind`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ device_id }) }),
+  devices: () =>
+    req<{ device_id: string; revoked: boolean }[]>('/devices'),
+  provisionDevice: (device_id: string, fingerprint: string) =>
+    req<{ device_id: string }>(`/devices`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ device_id, fingerprint }) }),
+  bindings: () =>
+    req<{ node_id: string; device_id: string | null; gain: number }[]>('/bindings'),
 };

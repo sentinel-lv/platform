@@ -11,16 +11,34 @@ function nextId(order: string[]): string {
   return `N-${String(mx + 1).padStart(3, '0')}`;
 }
 
-function nearestPole(poles: { node_id: string; lat: number; lng: number }[], lat: number, lng: number): string {
-  let best = '', bd = Infinity;
+function nearestPole(
+  poles: { node_id: string; lat: number; lng: number }[],
+  lat: number,
+  lng: number,
+): string {
+  let best = '';
+  let bd = Infinity;
   for (const p of poles) {
     const d = (p.lat - lat) ** 2 + (p.lng - lng) ** 2;
-    if (d < bd) { bd = d; best = p.node_id; }
+    if (d < bd) {
+      bd = d;
+      best = p.node_id;
+    }
   }
   return best;
 }
 
-export default function AddNodeForm({ lat, lng, onDone }: { lat: number; lng: number; onDone: () => void }) {
+export default function AddNodeForm({
+  lat,
+  lng,
+  onDone,
+  onCancel,
+}: {
+  lat: number;
+  lng: number;
+  onDone: () => void;
+  onCancel?: () => void;
+}) {
   const order = useFeeder((s) => s.order);
   const poles = useFeeder((s) => s.poles);
   const feederId = useFeeder((s) => s.feederId);
@@ -32,7 +50,8 @@ export default function AddNodeForm({ lat, lng, onDone }: { lat: number; lng: nu
   const [busy, setBusy] = useState(false);
 
   const submit = async () => {
-    setBusy(true); setErr(null);
+    setBusy(true);
+    setErr(null);
     try {
       await api.addNode({ node_id: nodeId, lat, lng, span_m: span, after: after || null });
       const g = await api.feeder(feederId);
@@ -46,29 +65,75 @@ export default function AddNodeForm({ lat, lng, onDone }: { lat: number; lng: nu
   };
 
   return (
-    <div data-testid="add-node-form" className="absolute left-2 top-12 z-10 w-64 rounded border bg-white p-3 shadow-lg">
-      <div className="mb-2 text-sm font-bold">Commission node</div>
-      <div className="mb-1 font-mono text-xs text-slate-500">{lat.toFixed(5)}, {lng.toFixed(5)}</div>
-      <label className="block text-xs">Node ID
-        <input data-testid="add-node-id" className="mt-0.5 w-full rounded border px-1.5 py-1 font-mono" value={nodeId} onChange={(e) => setNodeId(e.target.value.toUpperCase())} />
+    <div
+      data-testid="add-node-form"
+      role="dialog"
+      aria-label="Commission node"
+      className="absolute left-2 top-14 z-10 w-64 border-[1.5px] border-ink bg-porcelain p-3 shadow-plate"
+    >
+      <p className="font-display text-sm font-extrabold">Commission node</p>
+      <p className="cc-tick mb-2 text-xs text-ink/60">
+        {lat.toFixed(5)}, {lng.toFixed(5)}
+      </p>
+      <label className="block text-xs font-semibold">
+        Node ID
+        <input
+          data-testid="add-node-id"
+          className="cc-tick mt-0.5 w-full border border-ink/40 bg-paper px-1.5 py-1"
+          value={nodeId}
+          onChange={(e) => setNodeId(e.target.value.toUpperCase())}
+        />
       </label>
-      <label className="mt-1 block text-xs">Upstream of (after)
-        <select data-testid="add-node-after" className="mt-0.5 w-full rounded border px-1.5 py-1 font-mono" value={after} onChange={(e) => setAfter(e.target.value)}>
+      <label className="mt-1.5 block text-xs font-semibold">
+        Upstream of (after)
+        <select
+          data-testid="add-node-after"
+          className="cc-tick mt-0.5 w-full border border-ink/40 bg-paper px-1.5 py-1"
+          value={after}
+          onChange={(e) => setAfter(e.target.value)}
+        >
           <option value="">— tail —</option>
-          {order.map((id) => <option key={id} value={id}>{id}</option>)}
+          {order.map((id) => (
+            <option key={id} value={id}>
+              {id}
+            </option>
+          ))}
         </select>
       </label>
-      <label className="mt-1 block text-xs">Span (m)
-        <input data-testid="add-node-span" type="number" className="mt-0.5 w-full rounded border px-1.5 py-1" value={span} onChange={(e) => setSpan(Number(e.target.value))} />
+      <label className="mt-1.5 block text-xs font-semibold">
+        Span (m)
+        <input
+          data-testid="add-node-span"
+          type="number"
+          className="cc-tick mt-0.5 w-full border border-ink/40 bg-paper px-1.5 py-1"
+          value={span}
+          onChange={(e) => setSpan(Number(e.target.value))}
+        />
       </label>
-      {err && <div className="mt-1 rounded bg-red-100 px-2 py-1 text-xs text-red-800">{err}</div>}
+      {err && (
+        <p role="alert" className="mt-1.5 border border-fault bg-fault/10 px-2 py-1 text-xs text-faultdeep">
+          {err}
+        </p>
+      )}
       <div className="mt-2 flex gap-2">
-        <button data-testid="add-node-submit" disabled={busy} onClick={submit} className="flex-1 rounded bg-emerald-700 px-2 py-1.5 text-xs font-bold text-white disabled:opacity-40">
+        <button
+          data-testid="add-node-submit"
+          disabled={busy}
+          onClick={submit}
+          className="flex-1 border-[1.5px] border-ink bg-insulator px-2 py-1.5 font-display text-xs font-bold text-porcelain disabled:opacity-40"
+        >
           {busy ? 'Adding…' : 'Add node'}
         </button>
-        <button onClick={onDone} className="rounded border px-2 py-1.5 text-xs">Cancel</button>
+        <button
+          onClick={onCancel ?? onDone}
+          className="border-[1.5px] border-ink bg-porcelain px-2 py-1.5 text-xs font-bold hover:bg-amber-100"
+        >
+          Cancel
+        </button>
       </div>
-      <div className="mt-1 text-[11px] text-slate-500">Placement defines fault spans — pick the true upstream pole.</div>
+      <p className="mt-1.5 text-[11px] leading-snug text-ink/65">
+        Placement defines fault spans — pick the true upstream pole.
+      </p>
     </div>
   );
 }

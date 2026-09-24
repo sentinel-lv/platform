@@ -7,6 +7,7 @@ import StatusBar from './components/StatusBar';
 import FeederMap from './components/FeederMap';
 import NodePanel from './components/NodePanel';
 import ScenarioPanel from './components/ScenarioPanel';
+import NodeInspector from './components/NodeInspector';
 import CascadeOverlay from './components/CascadeOverlay';
 import EventTimeline from './components/EventTimeline';
 import CrewAlertMock from './components/CrewAlertMock';
@@ -56,28 +57,37 @@ export default function App() {
   }, [feederId, ingest, setGeo, setConn]);
 
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-900">
-      <StatusBar />
-      <main className="mx-auto grid max-w-6xl gap-3 p-3 md:grid-cols-3">
-        <section className="flex flex-col gap-3 md:col-span-2">
-          <FeederMap />
-          <CascadeOverlay />
-          <EventTimeline />
-        </section>
-        <aside className="flex flex-col gap-3">
-          <ScenarioPanel />
-          <NodePanel />
-          <ThresholdTuner />
-          <button
-            onClick={() => setShowExtras(!showExtras)}
-            className="rounded border bg-white px-2 py-1.5 text-xs font-semibold text-slate-600 shadow-sm"
-          >
-            {showExtras ? 'Hide crew + audit' : 'Show crew + audit'}
-          </button>
-          {showExtras && <CrewAlertMock />}
-          {showExtras && <AuditLog />}
-        </aside>
-      </main>
+    <div className="min-h-screen bg-paper font-sans text-ink">
+      <div className="cc-grid-bg pointer-events-none fixed inset-0" aria-hidden />
+      <div className="relative">
+        <StatusBar />
+        <main className="mx-auto grid max-w-6xl gap-4 p-3 md:grid-cols-12 md:p-5">
+          <section className="flex flex-col gap-4 md:col-span-7">
+            <CascadeOverlay />
+            <FeederMap />
+            <EventTimeline />
+          </section>
+          <aside className="flex flex-col gap-4 md:col-span-5">
+            <ScenarioPanel />
+            <NodeInspector />
+            <NodePanel />
+            <ThresholdTuner />
+            <button
+              onClick={() => setShowExtras(!showExtras)}
+              className="cc-panel-flat px-3 py-2 text-left font-display text-xs font-bold tracking-wide text-ink transition-colors hover:bg-porcelain focus-visible:outline focus-visible:outline-2 focus-visible:outline-insulator"
+            >
+              {showExtras ? 'Hide crew phone and audit ledger' : 'Show crew phone and audit ledger'}
+            </button>
+            {showExtras && <CrewAlertMock />}
+            {showExtras && <AuditLog />}
+          </aside>
+        </main>
+        <footer className="mx-auto max-w-6xl px-3 pb-6 md:px-5">
+          <p className="cc-tick text-[11px] text-ink/60">
+            Feeder drawing KSEB-TVM-F12 / Thiruvananthapuram / OSM basemap / 『demo stack: simulator in-process, no broker』
+          </p>
+        </footer>
+      </div>
     </div>
   );
 }

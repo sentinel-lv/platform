@@ -29,7 +29,7 @@ export interface FeederEvent {
   action: string; reason: string; confidence: number;
 }
 export type FrameKind = 'telemetry' | 'vote' | 'command' | 'event' | 'hello';
-export interface Pole { node_id: string; lat: number; lng: number; span_m: number }
+export interface Pole { node_id: string; lat: number; lng: number; span_m: number; device_id?: string | null; gain?: number }
 export interface FeederGeo {
   feeder_id: string; mode: string;
   substation: { lat: number; lng: number };

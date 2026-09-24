@@ -40,10 +40,27 @@ class Feeder:
             w = self.weather
             if self.veg_node == n.node_id:
                 w *= 0.55  # -45% fluctuating vegetation contact
+            self._apply_gain(n)
             ts = now_ms - (nn - 1 - k) * self.SLOT_MS
             item = n.step(ts, weather=w, break_mask=self._break_mask(n.node_id), epoch_s=epoch_s)
             if item is not None:
                 await self.bus.put(item)
+
+    def _apply_gain(self, n):
+        """Per-node calibration trim set via bridge.set_gain (demo wiring).
+
+        Simulator stays importable standalone (tests import sim/ directly):
+        the bridge is looked up lazily and any failure means unity gain.
+        """
+        try:
+            import sys
+            mod = sys.modules.get("app.bridge") or sys.modules.get("backend.app.bridge")
+            if mod is None:
+                return
+            g = mod.get_binding(n.node_id).get("gain", 1.0) or 1.0
+            n.gain = float(g)
+        except Exception:
+            pass
 
     async def run(self, hz=2.0):
         """Background tick loop (backend lifespan starts this)."""
@@ -95,3 +112,4 @@ class Feeder:
             n.state, n.deviation, n.offline = "NORMAL", 0.0, False
             n.baseline, n.efield, n.battery_mv = n.nominal, n.nominal, 3800
             n._sustain, n._recover_ticks = 0, 0
+        # NOTE: gain trims survive reset (they are calibration, not fault state).

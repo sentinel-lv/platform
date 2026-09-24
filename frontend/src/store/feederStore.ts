@@ -15,8 +15,11 @@ interface State {
   scenarioRunning: string | null;
   lastIsolate: FeederEvent | null;
   dismissCascade: boolean;
+  selectedId: string | null;
+  setSelected: (id: string | null) => void;
   ingest: (kind: FrameKind, payload: never) => void;
   setGeo: (poles: Pole[], substation: { lat: number; lng: number }, mode: string) => void;
+  removeNodeView: (node_id: string) => void;
   backfill: (node_id: string, samples: Telemetry[]) => void;
   setConn: (c: State['conn']) => void;
   setScenario: (s: string | null) => void;
@@ -41,6 +44,8 @@ export const useFeeder = create<State>((set) => ({
   scenarioRunning: null,
   lastIsolate: null,
   dismissCascade: false,
+  selectedId: null,
+  setSelected: (selectedId) => set({ selectedId }),
   ingest: (kind, payload) => set((st) => {
     if (kind === 'hello') {
       const p = payload as unknown as { nodes: Telemetry[] };
@@ -89,6 +94,16 @@ export const useFeeder = create<State>((set) => ({
     return {};
   }),
   setGeo: (poles, substation, mode) => set({ poles, substation, mode }),
+  removeNodeView: (node_id) => set((st) => {
+    if (!(node_id in st.nodes)) return {};
+    const nodes = { ...st.nodes };
+    delete nodes[node_id];
+    return {
+      nodes,
+      poles: st.poles.filter((p) => p.node_id !== node_id),
+      order: st.order.filter((id) => id !== node_id),
+    };
+  }),
   backfill: (node_id, samples) => set((st) => {
     const cur = st.nodes[node_id];
     if (cur && cur.hist.length >= HIST_N) return {};

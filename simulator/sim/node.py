@@ -23,6 +23,7 @@ class Node:
         self.node_id = node_id
         self.lat, self.lng, self.span_m = lat, lng, span_m
         self.nominal = nominal
+        self.gain = 1.0  # calibration trim (bridge.set_gain); multiplies output
         self.baseline = nominal
         self.efield = nominal
         self.deviation = 0.0
@@ -44,7 +45,7 @@ class Node:
             return None
         diurnal = 1.0 + 0.04 * math.sin(2 * math.pi * epoch_s / 86400.0)
         noise = self._rng.gauss(0, 0.03)
-        self.efield = self.nominal * diurnal * weather * (1 + noise) * break_mask
+        self.efield = self.nominal * self.gain * diurnal * weather * (1 + noise) * break_mask
         # EWMA baseline — frozen in SUSPECT/CONFIRMED (firmware safety rule)
         if self.state in ("NORMAL", "RECOVERED"):
             self.baseline += ALPHA * (self.efield - self.baseline)

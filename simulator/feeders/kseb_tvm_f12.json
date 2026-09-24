@@ -1,0 +1,18 @@
+{
+  "feeder_id": "KSEB-TVM-F12",
+  "substation": { "lat": 8.5241, "lng": 76.9366 },
+  "nodes": [
+    { "node_id": "N-001", "lat": 8.5245, "lng": 76.9371, "span_m": 42 },
+    { "node_id": "N-002", "lat": 8.5249, "lng": 76.9378, "span_m": 45 },
+    { "node_id": "N-003", "lat": 8.5253, "lng": 76.9385, "span_m": 44 },
+    { "node_id": "N-004", "lat": 8.5257, "lng": 76.9392, "span_m": 43 },
+    { "node_id": "N-005", "lat": 8.5261, "lng": 76.9399, "span_m": 41 },
+    { "node_id": "N-006", "lat": 8.5265, "lng": 76.9406, "span_m": 42 },
+    { "node_id": "N-007", "lat": 8.5269, "lng": 76.9413, "span_m": 45 },
+    { "node_id": "N-008", "lat": 8.5273, "lng": 76.9420, "span_m": 44 },
+    { "node_id": "N-009", "lat": 8.5277, "lng": 76.9427, "span_m": 43 },
+    { "node_id": "N-010", "lat": 8.5281, "lng": 76.9434, "span_m": 42 },
+    { "node_id": "N-011", "lat": 8.5285, "lng": 76.9441, "span_m": 40 },
+    { "node_id": "N-012", "lat": 8.5289, "lng": 76.9448, "span_m": 41 }
+  ]
+}

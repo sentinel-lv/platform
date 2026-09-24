@@ -1,0 +1,16 @@
+# Render blueprint: backend + free-tier friendly (backend README §1).
+# Dashboard -> New -> Blueprint -> connect repo. Set FRONTEND_ORIGIN to the Vercel URL.
+services:
+  - type: web
+    name: closed-circuit-backend
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    rootDir: backend
+    envVars:
+      - key: ENABLE_SIMULATE
+        value: 1
+      - key: FEEDER_MODE_DEFAULT
+        value: ALERT_ONLY
+      - key: FRONTEND_ORIGIN
+        sync: false

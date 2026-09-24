@@ -1,0 +1,12 @@
+{
+  "name": "Closed-Circuit — KSEB-TVM-F12",
+  "short_name": "Closed-Circuit",
+  "description": "Simulated feeder, live consensus engine: LV conductor-break operator view.",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "icons": [
+    { "src": "icon.svg", "sizes": "512x512", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

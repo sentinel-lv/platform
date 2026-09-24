@@ -1,0 +1,25 @@
+# Contract parity CI: one decide(), two languages, zero divergence.
+# jobs:
+#   software-gate (HARD): pytest + all C suites -Werror. Must stay green.
+#   budget-gate (INFORMATIONAL): BOM pricing check. Red until the enclosure row
+#     is priced (hardware track) — does not block merges, but do not ignore it.
+name: parity
+on: [push, pull_request]
+jobs:
+  software-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - run: pip install fastapi "uvicorn[standard]" pydantic pytest httpx
+      - run: ./firmware/test/run.sh
+        env: { PARITY_SKIP_BOM: '1' }
+  budget-gate:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - run: python -m pytest hardware/tests/test_bom.py -q

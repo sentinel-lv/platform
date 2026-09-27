@@ -16,6 +16,7 @@ import Evidence from './pages/Evidence';
  * console links, so the navigation itself still feels instant.
  */
 const Console = lazy(() => import('./pages/Console'));
+const NodeGrid = lazy(() => import('./pages/NodeGrid'));
 
 /**
  * The feeder connection is opened here, above the router, on purpose.
@@ -84,10 +85,10 @@ export default function App() {
   const route = useRoute();
   useFeederConnection();
 
-  if (route === '/console') {
+  if (route === '/console' || route === '/nodes') {
     return (
       <Suspense fallback={<ConsoleBooting />}>
-        <Console />
+        {route === '/nodes' ? <NodeGrid /> : <Console />}
       </Suspense>
     );
   }

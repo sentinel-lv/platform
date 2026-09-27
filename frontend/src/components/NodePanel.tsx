@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useFeeder, isOffline } from '../store/feederStore';
+import { Link } from '../router';
 import { STATE, STATE_ORDER } from '../theme/state';
 import NodeCard from './NodeCard';
 import { Empty, Panel } from './ui';
@@ -42,8 +43,17 @@ export default function NodePanel() {
     <Panel
       title="Nodes"
       right={
-        <span className={`cc-mono text-2xs tabular-nums ${bad ? 'text-warning' : 'text-ink-3'}`}>
-          {bad === 0 ? `${order.length} healthy` : `${bad} of ${order.length} need attention`}
+        <span className="flex items-center gap-2">
+          <span className={`cc-mono text-2xs tabular-nums ${bad ? 'text-warning' : 'text-ink-3'}`}>
+            {bad === 0 ? `${order.length} healthy` : `${bad} of ${order.length} need attention`}
+          </span>
+          <Link
+            to="/nodes"
+            title="See every node's field trace side by side"
+            className="rounded border border-line px-1.5 py-0.5 text-2xs font-semibold text-ink-3 transition hover:border-ink-3 hover:text-ink-2"
+          >
+            Expand
+          </Link>
         </span>
       }
       className="min-h-[200px] flex-1"

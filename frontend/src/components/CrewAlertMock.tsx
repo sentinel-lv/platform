@@ -2,7 +2,7 @@ import { useFeeder } from '../store/feederStore';
 
 // Phone frame showing the lineman's push (mock).
 export default function CrewAlertMock() {
-  const banner = useFeeder((s) => s.lastIsolate);
+  const banner = useFeeder((s) => s.lastFault);
   const events = useFeeder((s) => s.events);
   // crew phone keeps the most recent BREAK even after the banner clears on recovery
   const last = banner ?? events.find((e) => e.isolated) ?? null;

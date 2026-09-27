@@ -12,7 +12,7 @@ import { useFeeder } from '../store/feederStore';
  * backend's own, never a value counted up for effect.
  */
 export default function CascadeOverlay() {
-  const last = useFeeder((s) => s.lastIsolate);
+  const last = useFeeder((s) => s.lastFault);
   const dismissed = useFeeder((s) => s.dismissCascade);
   const setDismiss = useFeeder((s) => s.setDismissCascade);
   if (!last || dismissed) return null;

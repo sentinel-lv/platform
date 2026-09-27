@@ -13,7 +13,17 @@ interface State {
   mode: string;
   conn: 'connecting' | 'live' | 'reconnecting';
   scenarioRunning: string | null;
-  lastIsolate: FeederEvent | null;
+  /**
+   * Newest event where the arbiter actually located a fault: quorum reached,
+   * a span named, a latency measured.
+   *
+   * Deliberately NOT keyed on `isolated`. A feeder defaults to ALERT_ONLY —
+   * auto-isolation is opted into per feeder by the utility — so in the demo's
+   * own default mode `isolated` is always false. Keying the banner and the
+   * hero latency off it meant the headline number of the whole project never
+   * appeared unless someone first flipped the feeder to AUTO.
+   */
+  lastFault: FeederEvent | null;
   dismissCascade: boolean;
   /** node the operator is inspecting; links the map pin and the node card */
   selectedNode: string | null;
@@ -24,6 +34,20 @@ interface State {
   setScenario: (s: string | null) => void;
   setDismissCascade: (b: boolean) => void;
   selectNode: (id: string | null) => void;
+}
+
+/**
+ * Did the arbiter reach a verdict on a real fault? Quorum confirmed, a span
+ * named, and a latency measured from the first SUSPECT. True whether or not
+ * the feeder's mode let it actually drive the relay.
+ */
+export function isConfirmedFault(e: FeederEvent): boolean {
+  return (
+    e.reason === 'quorum_confirmed' &&
+    !!e.fault_span &&
+    e.latency_ms !== null &&
+    e.latency_ms !== undefined
+  );
 }
 
 const HIST_N = 60;
@@ -42,7 +66,7 @@ export const useFeeder = create<State>((set) => ({
   mode: 'ALERT_ONLY',
   conn: 'connecting',
   scenarioRunning: null,
-  lastIsolate: null,
+  lastFault: null,
   dismissCascade: false,
   selectedNode: null,
   ingest: (kind, payload) => set((st) => {
@@ -82,11 +106,12 @@ export const useFeeder = create<State>((set) => ({
       // reset-ish frames (recovery line / RESTORE-mode housekeeping): clear the
       // banner so a stale BREAK + red spans don't linger after the field heals.
       const healed = !e.isolated && (e.reason === 'no_fault' || e.type === 'FALSE_POSITIVE_REJECTED');
-      const newestIso = e.isolated ? e : healed ? undefined : events.find((x) => x.isolated);
+      const isFault = isConfirmedFault(e);
+      const newest = isFault ? e : healed ? undefined : events.find(isConfirmedFault);
       return {
         events,
-        lastIsolate: newestIso === undefined ? null : (newestIso ?? null),
-        dismissCascade: e.isolated ? false : healed ? true : st.dismissCascade,
+        lastFault: newest === undefined ? null : (newest ?? null),
+        dismissCascade: isFault ? false : healed ? true : st.dismissCascade,
         scenarioRunning: null,
       };
     }

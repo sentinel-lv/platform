@@ -1,5 +1,8 @@
 import { Link, type Route } from '../router';
 
+/** Pull the console chunk down before the click, so navigation feels instant. */
+const warmConsole = () => { void import('../pages/Console'); };
+
 const LINKS: { to: Route; label: string }[] = [
   { to: '/', label: 'Overview' },
   { to: '/evidence', label: 'How it decides' },
@@ -36,6 +39,8 @@ export default function SiteNav({ route }: { route: Route }) {
 
         <Link
           to="/console"
+          onMouseEnter={warmConsole}
+          onFocus={warmConsole}
           className="ml-auto rounded bg-accent px-3.5 py-1.5 text-xs font-bold text-white transition hover:brightness-110"
         >
           Live console

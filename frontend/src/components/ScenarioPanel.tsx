@@ -69,7 +69,10 @@ export default function ScenarioPanel() {
         <button
           data-testid="scenario-reset"
           onClick={() => fire('reset')}
-          disabled={!!running}
+          /* Never gated on another scenario running. Reset is the escape hatch:
+             if a scenario hangs mid-demo, this is the button that saves it. */
+          disabled={running === 'reset'}
+          title="Return every node to NORMAL — a clean slate for the next run"
           className="rounded border border-line px-2 py-0.5 text-2xs font-semibold text-ink-3 transition hover:border-ink-3 hover:text-ink-2 disabled:opacity-40"
         >
           {running === 'reset' ? 'Resetting…' : 'Reset'}

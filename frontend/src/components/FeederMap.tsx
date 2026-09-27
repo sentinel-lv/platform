@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
+// imported here, not in main.tsx, so it ships with the lazy console chunk
+import 'maplibre-gl/dist/maplibre-gl.css';
 import { useFeeder } from '../store/feederStore';
 import type { NodeState } from '../types/protocol';
 import { STATE, STATE_ORDER } from '../theme/state';
@@ -86,6 +88,15 @@ export default function FeederMap() {
 
   const [arming, setArming] = useState(false);
   const [draft, setDraft] = useState<{ lat: number; lng: number } | null>(null);
+  /**
+   * Bumped every time a Map instance is created. StrictMode mounts, tears
+   * down and remounts effects in development, and a lazily-imported console
+   * makes that ordering bite: the teardown removed the map while the marker
+   * refs survived, so the re-mounted map got no markers and the feeder
+   * rendered as bare line work. Every effect that talks to the map depends on
+   * this, so they all re-run against the new instance.
+   */
+  const [mapEpoch, setMapEpoch] = useState(0);
 
   // click-to-place commissioning: arm, click the pole position, confirm
   useEffect(() => {
@@ -130,6 +141,7 @@ export default function FeederMap() {
     map.addControl(new maplibregl.AttributionControl({ compact: true }), 'bottom-right');
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
     mapObj.current = map;
+    setMapEpoch((n) => n + 1);
 
     // The map lives in a flex/grid cell that can still be zero-height on the
     // first paint. Without this every marker pins to the container origin,
@@ -137,7 +149,17 @@ export default function FeederMap() {
     const ro = new ResizeObserver(() => map.resize());
     ro.observe(mapRef.current);
 
-    return () => { ro.disconnect(); map.remove(); mapObj.current = null; };
+    return () => {
+      ro.disconnect();
+      // Markers belong to the map being destroyed — drop the refs with it,
+      // or the next map is handed markers that are already detached.
+      for (const m of markers.current.values()) m.remove();
+      markers.current.clear();
+      subMarker.current?.remove();
+      subMarker.current = null;
+      map.remove();
+      mapObj.current = null;
+    };
   }, []);
 
   // substation marker at the feeder head
@@ -156,7 +178,7 @@ export default function FeederMap() {
     } else {
       subMarker.current.setLngLat([substation.lng, substation.lat]);
     }
-  }, [substation]);
+  }, [substation, mapEpoch]);
 
   // pins follow poles; bounds include the substation so nothing sits off-screen
   useEffect(() => {
@@ -193,7 +215,7 @@ export default function FeederMap() {
     }
     map.fitBounds(bounds, { padding: 56, maxZoom: 16 });
     ensureSpanLayers(map);
-  }, [poles, substation, selectNode]);
+  }, [poles, substation, selectNode, mapEpoch]);
 
   // re-evaluate staleness on a ticker so OFFLINE appears without new frames
   const [tick, setTick] = useState(0);
@@ -205,7 +227,8 @@ export default function FeederMap() {
   // spans are coloured by the DOWNSTREAM node's state: that is the segment the
   // break actually de-energises
   const statesSig =
-    poles.map((p) => `${p.node_id}:${displayState(nodes[p.node_id]?.tel, Date.now())}`).join(',') + tick;
+    poles.map((p) => `${p.node_id}:${displayState(nodes[p.node_id]?.tel, Date.now())}`).join(',') +
+    `|${tick}|${mapEpoch}`;
   useEffect(() => {
     const map = mapObj.current;
     if (!map || poles.length === 0) return;
@@ -244,7 +267,7 @@ export default function FeederMap() {
       wrap.style.zIndex = p.selected ? '5' : '';
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nodes, tick, selected]);
+  }, [nodes, tick, selected, mapEpoch]);
 
   return (
     <div className="relative h-full w-full overflow-hidden rounded-panel border border-line bg-surface-1">

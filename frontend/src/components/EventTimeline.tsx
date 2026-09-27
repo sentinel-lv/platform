@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useFeeder } from '../store/feederStore';
+import { useFeeder, isConfirmedFault } from '../store/feederStore';
 import type { FeederEvent } from '../types/protocol';
 import { Empty, Panel } from './ui';
 
@@ -11,7 +11,12 @@ function prettyReason(r: string): string {
 interface Kind { label: string; cls: string; glyph: string }
 
 function kindOf(e: FeederEvent): Kind {
-  if (e.isolated) return { label: 'BREAK', cls: 'bg-critical text-white', glyph: '✕' };
+  // A confirmed fault is a BREAK whether or not the feeder's mode let the
+  // gateway act on it. Keying this on `isolated` labelled every break in the
+  // default ALERT_ONLY mode as a generic "ALERT", which buries the one event
+  // the whole demo exists to show.
+  if (e.isolated) return { label: 'ISOLATED', cls: 'bg-critical text-white', glyph: '✕' };
+  if (isConfirmedFault(e)) return { label: 'BREAK', cls: 'bg-critical text-white', glyph: '✕' };
   if (e.type === 'FALSE_POSITIVE_REJECTED') return { label: 'REJECTED', cls: 'bg-accent-dim text-accent', glyph: '✓' };
   if (e.type === 'NODE_OFFLINE') return { label: 'OFFLINE', cls: 'bg-surface-3 text-ink-3', glyph: '○' };
   if (e.type === 'LOW_BATTERY') return { label: 'BATTERY', cls: 'bg-warning-dim text-warning', glyph: '▾' };

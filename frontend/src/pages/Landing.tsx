@@ -1,6 +1,8 @@
 import CascadeFilm from '../components/CascadeFilm';
 import { Link } from '../router';
 
+const warmConsole = () => { void import('./Console'); };
+
 const TARGETS = [
   { v: '< 2 s', k: 'detection → isolation', hint: 'Measured on every event as latency_ms, from the first SUSPECT to command issue' },
   { v: '₹1,800', k: 'BOM per node', hint: 'Prototype quantity, with a 1,000-unit projection maintained in hardware/BOM.csv' },
@@ -39,6 +41,8 @@ export default function Landing() {
       <div className="mt-8 flex flex-wrap items-center gap-3">
         <Link
           to="/console"
+          onMouseEnter={warmConsole}
+          onFocus={warmConsole}
           className="rounded bg-accent px-5 py-2.5 text-sm font-bold text-white transition hover:brightness-110"
         >
           Open the live console →

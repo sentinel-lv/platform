@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { Suspense, lazy, useEffect } from 'react';
 import { api } from './api/client';
 import { connectStream } from './api/socket';
 import { useFeeder } from './store/feederStore';
@@ -7,7 +7,15 @@ import { useRoute } from './router';
 import SiteNav from './components/SiteNav';
 import Landing from './pages/Landing';
 import Evidence from './pages/Evidence';
-import Console from './pages/Console';
+
+/**
+ * The console is the only page that needs MapLibre and Recharts — together
+ * about 1.3 MB before gzip. Loading it lazily keeps the landing page, which is
+ * what "public URL loads in under 3 s on mobile data" is measured against,
+ * down to the app shell. SiteNav warms this chunk on hover/focus of the
+ * console links, so the navigation itself still feels instant.
+ */
+const Console = lazy(() => import('./pages/Console'));
 
 /**
  * The feeder connection is opened here, above the router, on purpose.
@@ -60,11 +68,29 @@ function useFeederConnection() {
   }, [feederId, ingest, setGeo, setConn]);
 }
 
+/** Shown for the moment the console chunk is in flight. */
+function ConsoleBooting() {
+  return (
+    <div className="flex h-full flex-col items-center justify-center gap-3 bg-bg text-ink-3">
+      <div className="h-1 w-40 overflow-hidden rounded-full bg-surface-3">
+        <div className="cc-sweep relative h-full w-full" />
+      </div>
+      <p className="text-xs">Connecting to feeder…</p>
+    </div>
+  );
+}
+
 export default function App() {
   const route = useRoute();
   useFeederConnection();
 
-  if (route === '/console') return <Console />;
+  if (route === '/console') {
+    return (
+      <Suspense fallback={<ConsoleBooting />}>
+        <Console />
+      </Suspense>
+    );
+  }
 
   return (
     <div className="min-h-full bg-bg text-ink">

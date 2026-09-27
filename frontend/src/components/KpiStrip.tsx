@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useFeeder, isOffline } from '../store/feederStore';
+import { useFeeder, isOffline, isConfirmedFault } from '../store/feederStore';
 import { Meter, Stat } from './ui';
 
 /** PROTOCOL §4.3: detection→isolation must stay under 2 s. */
@@ -15,7 +15,11 @@ const BUDGET_MS = 2000;
  * animates the digits toward a made-up figure; only the frame reacts.
  */
 function LatencyHero() {
-  const last = useFeeder((s) => s.lastIsolate);
+  // Derived from the event log rather than from lastFault, so the figure
+  // PERSISTS after the field heals. The hero is the project's proof metric
+  // ("we measured 120 ms"), not a live-fault lamp — a reset or a rejected
+  // false alarm should not blank the number a judge just watched land.
+  const last = useFeeder((s) => s.events.find(isConfirmedFault) ?? null);
   const ms = last?.latency_ms ?? null;
   const [flash, setFlash] = useState(false);
   const seen = useRef<string | null>(null);
@@ -38,7 +42,7 @@ function LatencyHero() {
       }`}
     >
       <div className="text-2xs font-semibold uppercase tracking-[.12em] text-ink-3">
-        Detection <span className="text-ink-3">→</span> isolation
+        {ms === null ? 'Detection → isolation' : 'Last measured detection → isolation'}
       </div>
 
       {/* Hero figure: >=48px, same sans as the rest, proportional figures.
@@ -92,7 +96,11 @@ export default function KpiStrip() {
   const offline = order.filter((id) => isOffline(nodes[id]?.tel, now)).length;
   const alarmed = order.length - live - offline;
 
-  const breaks = events.filter((e) => e.isolated).length;
+  // Count verdicts, not relay operations: in ALERT_ONLY (the default) the
+  // arbiter confirms the fault and names the span but never drives the relay,
+  // so counting `isolated` would read 0 through an entire successful demo.
+  const breaks = events.filter(isConfirmedFault).length;
+  const actuated = events.filter((e) => e.isolated).length;
   const rejected = events.filter((e) => e.type === 'FALSE_POSITIVE_REJECTED').length;
 
   const healthTone = alarmed > 0 ? 'critical' : offline > 0 ? 'warning' : 'good';
@@ -110,10 +118,13 @@ export default function KpiStrip() {
           hint={`${live} normal · ${alarmed} in alarm · ${offline} offline`}
         />
         <Stat
-          label="Breaks isolated"
+          label="Breaks detected"
           value={breaks}
           tone={breaks ? 'critical' : 'default'}
-          hint="Events where quorum was reached and a span was asserted"
+          hint={
+            `Quorum reached and a fault span named. ${actuated} of ${breaks} drove an isolation — ` +
+            'the rest were alert-only, which is the default until a utility opts the feeder into AUTO.'
+          }
         />
         <Stat
           label="False alarms rejected"

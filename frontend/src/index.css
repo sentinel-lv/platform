@@ -309,3 +309,34 @@ body {
   opacity: 0;
   animation: cc-boot-pop .5s ease-out infinite alternate;
 }
+
+/* ==========================================================================
+   Team page — the cards assemble, then settle.
+   ========================================================================== */
+.tm-grid .tm-slot {
+  opacity: 0;
+  transform: translateY(26px) rotateX(-14deg) scale(.96);
+  transition: opacity .55s cubic-bezier(.22,1,.36,1), transform .55s cubic-bezier(.22,1,.36,1);
+}
+.tm-grid[data-assembled='true'] .tm-slot {
+  opacity: 1;
+  transform: none;
+}
+/* stagger: each slot waits its turn */
+.tm-grid .tm-slot:nth-child(1) { transition-delay: .00s }
+.tm-grid .tm-slot:nth-child(2) { transition-delay: .09s }
+.tm-grid .tm-slot:nth-child(3) { transition-delay: .18s }
+.tm-grid .tm-slot:nth-child(4) { transition-delay: .27s }
+.tm-grid .tm-slot:nth-child(5) { transition-delay: .36s }
+.tm-grid .tm-slot:nth-child(6) { transition-delay: .45s }
+.tm-grid .tm-slot:nth-child(7) { transition-delay: .54s }
+
+.tm-card { transform-style: preserve-3d; will-change: transform; }
+
+/* the monogram's field ring breathes, like the one on the landing hero */
+@keyframes tm-ring { 0%,100% { opacity: .40; r: 26 } 50% { opacity: .12; r: 29 } }
+.tm-ring { animation: tm-ring 3.4s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .tm-grid .tm-slot { opacity: 1; transform: none; }
+}

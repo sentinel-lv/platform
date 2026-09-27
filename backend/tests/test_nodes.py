@@ -19,11 +19,11 @@ def setup_function(_):
     # restore pristine 12-node topology between tests (module-global registry)
     geo.nodes = [dict(n) for n in _base_nodes()]
     ingest.states.clear(); ingest.event_log.clear()
-    reset_rate_limit("KSEB-TVM-F12")
-    for k in ("KSEB-TVM-F12",):
+    reset_rate_limit("SLV-TVM-F12")
+    for k in ("SLV-TVM-F12",):
         ingest._last_key[k] = None; ingest._saw_suspect[k] = False
         ingest._isolated_episode[k] = False; ingest._pending[k] = (None, 0)
-    config.set_mode("KSEB-TVM-F12", "AUTO")
+    config.set_mode("SLV-TVM-F12", "AUTO")
     bridge.detach_sim()
 
 def _base_nodes():

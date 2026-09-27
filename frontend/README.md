@@ -1,7 +1,7 @@
 # Frontend — operator dashboard
 
 **Owner:** TBD
-**Depends on:** `docs/PROTOCOL.md`, `backend/` WebSocket endpoint
+**Depends on:** `protocol/PROTOCOL.md` (submodule), `backend/` WebSocket endpoint
 **Deliverable for M1:** a public URL that a judge can open on their phone and understand in 20 seconds.
 
 You own the demo. Everything else on this project is invisible to the panel; this is not.
@@ -28,6 +28,23 @@ cp .env.example .env   # set VITE_API_URL and VITE_WS_URL
 npm run dev
 ```
 
+Or bring the whole demo stack up from `platform/`:
+
+```bash
+./start.sh            # backend :8015 + frontend :5173
+./start.sh --status   # health check
+./start.sh --stop
+```
+
+`start.sh` dies if the shell that launched it is killed. For a long-lived
+background stack, detach stdin explicitly:
+
+```bash
+nohup backend/.venv/bin/python -m uvicorn app.main:app \
+      --host 127.0.0.1 --port 8015 --app-dir backend > logs/backend.log 2>&1 < /dev/null &
+(cd frontend && nohup npm run dev > ../logs/frontend.log 2>&1 < /dev/null &)
+```
+
 `.env.example`:
 
 ```
@@ -40,28 +57,78 @@ VITE_WS_URL=ws://localhost:8015/stream
 ```
 frontend/src/
 ├── api/
-│   ├── client.ts             REST wrapper
-│   └── socket.ts             WebSocket, auto-reconnect with backoff
+│   ├── client.ts            REST wrapper
+│   └── socket.ts            WebSocket, auto-reconnect with backoff
+├── router.tsx               ~30-line hash router (no dependency; static-host safe)
+├── theme/
+│   ├── theme.tsx            dark / light / system resolution + cssVar()
+│   ├── ThemeContext.tsx     provider; `resolved` drives literal-colour consumers
+│   └── state.tsx            ONE definition of how a node state looks
 ├── store/
-│   └── feederStore.ts        nodes, events, connection status
+│   └── feederStore.ts       nodes, events, connection, selection
+├── pages/
+│   ├── Landing.tsx          the argument, in eight numbered sections
+│   ├── Evidence.tsx         veto rules, vectors, latency budget, trip path
+│   ├── Console.tsx          the live operator view
+│   └── NodeGrid.tsx         every node's trace as small multiples
 ├── components/
-│   ├── FeederMap.tsx         MapLibre, pole pins, span polylines
-│   ├── NodeCard.tsx          sparkline, battery, RSSI, state badge
-│   ├── NodePanel.tsx         scrollable list of NodeCards
-│   ├── ScenarioPanel.tsx     the demo buttons
-│   ├── CascadeOverlay.tsx    break animation + latency counter
-│   ├── EventTimeline.tsx     chronological event log with vote trail
-│   ├── CrewAlertMock.tsx     phone frame showing the lineman's push
-│   └── StatusBar.tsx         feeder mode, node count, live/offline
-├── types/protocol.ts         generated from docs/PROTOCOL.md — mirror it exactly
-└── App.tsx
+│   ├── ui.tsx               Panel · Btn · Meter · Stat · Dot · Empty
+│   ├── CommandBar.tsx       identity, link state, theme, way back out
+│   ├── KpiStrip.tsx         the hero latency + feeder stats
+│   ├── FeederMap.tsx        MapLibre, glyph pins, dash-encoded spans
+│   ├── NodeInspector.tsx    one node: telemetry, commissioning, decommission
+│   ├── NodeCard.tsx         sparkline, meters, state badge
+│   ├── NodePanel.tsx        scrollable list + colour key
+│   ├── StateKey.tsx         the colour key (compact and full)
+│   ├── ScenarioPanel.tsx    demo buttons, grouped by expected outcome
+│   ├── CascadeOverlay.tsx   the break banner
+│   ├── EventTimeline.tsx    event log with the vote trail
+│   ├── CascadeFilm.tsx      landing explainer loop (pure CSS/SVG)
+│   ├── FieldBackdrop.tsx    hero backdrop: the field being measured
+│   ├── DetectionGap.tsx     why overcurrent protection misses this fault
+│   ├── BootScreen.tsx       cold-start animation
+│   ├── Reveal.tsx           scroll reveal (single-shot IntersectionObserver)
+│   ├── ThemeToggle.tsx      Light / Auto / Dark
+│   ├── CrewAlertMock.tsx    the lineman's push
+│   ├── ThresholdTuner.tsx   per-feeder ArbiterConfig
+│   ├── AuditLog.tsx         who changed what
+│   └── AddNodeForm.tsx      click-to-place commissioning
+├── types/protocol.ts        generated from PROTOCOL.md — mirror it exactly
+├── index.css                design tokens (the one source of colour)
+└── App.tsx                  routes + the feeder connection
 ```
+
+### Routes
+
+| Route | What it is |
+|-------|------------|
+| `#/` | Overview — the argument, for someone who has 60 seconds |
+| `#/evidence` | How it decides — veto rules, vectors, latency budget |
+| `#/console` | The live operator view |
+| `#/nodes` | Every node's field trace, side by side |
+
+Hash routes on purpose: they work on any static host with no rewrite rules,
+so a deploy cannot 404 on a deep link the night before a demo.
+
+### Two rules worth keeping
+
+**Colour is never the only channel.** A CVD check puts CONFIRMED-red against
+NORMAL-green at deltaE 4.1 — indistinguishable to a deutan viewer. Every state
+therefore renders as colour **+ glyph + label**, and span polylines carry a
+dash pattern too. `theme/state.tsx` is the only place that decides this; do not
+hard-code a state colour anywhere else.
+
+**Colour lives in `index.css`.** Tailwind only names the custom properties and
+SVG resolves them directly, so a theme change repaints charts and badges with
+no JavaScript. The one consumer that cannot is MapLibre, which parses colours
+itself — it reads literals through `cssVar()` and re-applies them with
+`setPaintProperty`.
 
 ## 4. Layout
 
 ```
 ┌───────────────────────────────────────────────────┐
-│ StatusBar  KSEB-TVM-F12 · 12 nodes · ALERT_ONLY · ● LIVE │
+│ StatusBar  SLV-TVM-F12 · 12 nodes · ALERT_ONLY · ● LIVE │
 ├──────────────────────────────────┬────────────────┤
 │                                  │ ScenarioPanel  │
 │           FeederMap              │ [Break mid-feeder] │
@@ -146,3 +213,32 @@ Mobile: map on top, scenario buttons collapse into a bottom sheet. Judges will o
 - **Animation timing is not latency.** The cascade animation may take 3 s to play for legibility; the displayed `latency_ms` must be the real number from the backend. Never animate the counter to a fake value.
 - Colour alone is not enough. Add state text to badges — some judges will be colour-blind and the projector will wash out amber.
 - Record a 90-second screen capture as a fallback. Venue wifi fails.
+
+### Learned the hard way (this branch)
+
+- **Never set `style.transform` on a MapLibre marker element.** That is the
+  property MapLibre uses to *position* it — writing to it collapses every pin
+  to the container's top-left corner. Put the visual in an inner element and
+  animate that (`scale`, not `transform`).
+- **The map needs a `ResizeObserver`.** It initialises inside a flex/grid cell
+  that can still be zero-height on first paint, which leaves its viewport size
+  stale and its projection wrong.
+- **Clear marker refs when the map is destroyed.** StrictMode mounts, tears
+  down and remounts; without clearing, the remounted map is handed markers that
+  are already detached and the feeder renders as bare line work.
+- **MapLibre's canvas is absolutely positioned**, so it paints above any
+  statically-positioned sibling that follows it. Panels below the map need
+  `relative` or they end up underneath it.
+- **`line-dasharray` is not data-driven.** One line layer per state, filtered —
+  which is also what lets the dash carry the state when hue cannot.
+- **Do not reach for a ready-made dark tile set.** CARTO, Stadia and Mapbox all
+  want an API key for theirs now. Plain OSM raster darkened with MapLibre's
+  `raster-*` paint properties needs no key and cannot expire mid-demo. Darken
+  the raster *layer*, not the canvas — a CSS filter would invert the spans and
+  pins too.
+- **A feeder defaults to `ALERT_ONLY`,** so `isolated` is false even on a
+  perfect detection. Key the banner, the hero figure and the counters off the
+  *verdict* (`quorum_confirmed` + a span + a latency), never off `isolated`, or
+  the demo shows nothing in the mode it ships in.
+- **Restart uvicorn after adding a route.** It runs without `--reload` in the
+  background recipe below; a new endpoint 404s until you do.

@@ -65,7 +65,7 @@ print_banner() {
     echo -e "${CYAN}${BOLD}"
     echo "======================================================================"
     echo "       CLOSED-CIRCUIT // SENTINEL-LV — FULL STACK RUNNER             "
-    echo "       Smart India Hackathon 2026 · Problem: KSEBL (LV Protection)   "
+    echo "       Smart India Hackathon 2026 · Open Innovation · Disaster Mgmt  "
     echo "======================================================================"
     echo -e "${NC}"
 }

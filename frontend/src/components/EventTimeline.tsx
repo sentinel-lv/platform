@@ -3,8 +3,22 @@ import { useFeeder, isConfirmedFault } from '../store/feederStore';
 import type { FeederEvent } from '../types/protocol';
 import { Empty, Panel } from './ui';
 
-/** machine reasons (single_node_no_quorum) -> human words for the demo wall */
+/**
+ * Machine reasons (single_node_no_quorum) -> human words for the demo wall.
+ *
+ * The offline reaper reports the whole silent set each time it fires, so a
+ * feeder going quiet produces `node offline:N-012`, then `N-011,N-012`, then
+ * `N-010,N-011,N-012`... Rendering every id in every row buries the rest of
+ * the log under one incident, so past two the row counts them and the full
+ * list stays in the title attribute.
+ */
 function prettyReason(r: string): string {
+  const m = /^node offline:(.+)$/.exec(r);
+  if (m) {
+    const ids = m[1].split(',').map((s) => s.trim()).filter(Boolean);
+    if (ids.length > 2) return `${ids.length} nodes silent — ${ids[0]} … ${ids[ids.length - 1]}`;
+    return `node offline · ${ids.join(', ')}`;
+  }
   return r.replace(/_/g, ' ');
 }
 
@@ -60,7 +74,7 @@ export default function EventTimeline() {
 
                   <span className="cc-mono shrink-0 text-2xs tabular-nums text-ink-3">{clock(e.ts_confirmed)}</span>
 
-                  <span className="min-w-0 flex-1 truncate text-xs text-ink-2">
+                  <span className="min-w-0 flex-1 truncate text-xs text-ink-2" title={e.reason}>
                     {e.fault_span ? (
                       <span className="cc-mono font-semibold text-ink">
                         {e.fault_span[0]} ↔ {e.fault_span[1]}

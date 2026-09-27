@@ -10,15 +10,15 @@ def client():
     with TestClient(_m.app) as c:
         yield c
     from app import config as _cfg
-    _cfg._per_feeder.pop("KSEB-TVM-F12", None)
-    _cfg.set_mode("KSEB-TVM-F12", "ALERT_ONLY")
+    _cfg._per_feeder.pop("SLV-TVM-F12", None)
+    _cfg.set_mode("SLV-TVM-F12", "ALERT_ONLY")
     from app.audit import clear as _ac
     _ac()
     from app import security as _sec
     _sec.clear_devices()
     os.environ.pop("OPERATOR_TOKEN", None)
 
-FID = "KSEB-TVM-F12"
+FID = "SLV-TVM-F12"
 
 def test_patch_config_roundtrip(client):
     r = client.patch(f"/feeders/{FID}/config", json={"quorum_required": 3})

@@ -29,12 +29,12 @@ class NodePatch(BaseModel):
 
 
 @router.get("/nodes")
-def list_nodes(feeder_id: str = "KSEB-TVM-F12"):
+def list_nodes(feeder_id: str = "SLV-TVM-F12"):
     st = get_state(feeder_id)
     return list(st.latest.values())
 
 @router.get("/nodes/{nid}/history")
-def history(nid: str, feeder_id: str = "KSEB-TVM-F12", window: int = 300):
+def history(nid: str, feeder_id: str = "SLV-TVM-F12", window: int = 300):
     return get_state(feeder_id).history(nid, window)
 
 @router.post("/nodes", status_code=201)

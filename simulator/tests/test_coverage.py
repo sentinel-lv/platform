@@ -62,7 +62,7 @@ def test_low_battery_reports_not_trips():
     f = Feeder()
     f.by_id["N-007"].battery_mv = 3100
     t = _ticks(f, 4, T0)
-    tel = f.by_id["N-007"].telemetry("KSEB-TVM-F12", t)
+    tel = f.by_id["N-007"].telemetry("SLV-TVM-F12", t)
     assert tel["battery_mv"] == 3100 and tel["state"] == "NORMAL"
     assert _verdict(f, t).action != "ISOLATE"
 

@@ -3,7 +3,7 @@ import asyncio, json, pathlib, time
 from .node import Node
 from .bus import Bus
 
-FEEDER_FILE = pathlib.Path(__file__).resolve().parents[1] / "feeders" / "kseb_tvm_f12.json"
+FEEDER_FILE = pathlib.Path(__file__).resolve().parents[1] / "feeders" / "slv_tvm_f12.json"
 
 class Feeder:
     def __init__(self, feeder_file=FEEDER_FILE, seed=42):

@@ -203,7 +203,19 @@ export default function NodeInspector() {
 
         {/* placement */}
         <section className="rounded border border-line-soft bg-surface-2 p-2.5">
-          <h3 className="text-2xs font-bold uppercase tracking-[.12em] text-ink-3">Placement</h3>
+          <div className="flex items-center justify-between gap-2">
+            <h3 className="text-2xs font-bold uppercase tracking-[.12em] text-ink-3">Placement</h3>
+            {pole && (
+              <button
+                onClick={() => window.dispatchEvent(
+                  new CustomEvent('cc:flyto', { detail: { lng: pole.lng, lat: pole.lat } }),
+                )}
+                className="rounded border border-line px-1.5 py-0.5 text-2xs font-semibold text-ink-3 transition hover:border-accent hover:text-accent"
+              >
+                Centre on map
+              </button>
+            )}
+          </div>
           <dl className="mt-1 divide-y divide-line-soft">
             <Row k="Latitude" v={pole ? pole.lat.toFixed(5) : '—'} />
             <Row k="Longitude" v={pole ? pole.lng.toFixed(5) : '—'} />

@@ -8,6 +8,7 @@ import BootScreen from './components/BootScreen';
 import SiteNav from './components/SiteNav';
 import Landing from './pages/Landing';
 import Evidence from './pages/Evidence';
+import Team from './pages/Team';
 
 /**
  * The console is the only page that needs MapLibre and Recharts — together
@@ -85,7 +86,7 @@ export default function App() {
   return (
     <div className="min-h-full bg-bg text-ink">
       <SiteNav route={route} />
-      {route === '/evidence' ? <Evidence /> : <Landing />}
+      {route === '/evidence' ? <Evidence /> : route === '/team' ? <Team /> : <Landing />}
       <footer className="border-t border-line px-5 py-6 text-center text-2xs text-ink-3">
         Closed-Circuit · Team VITBSIH26-388 · VIT Bhopal ·
         {' '}Smart India Hackathon 2026 · Open Innovation · Disaster Management

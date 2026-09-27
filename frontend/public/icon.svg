@@ -1,4 +1,10 @@
+<!-- The brand mark: a conductor span with a break in it. Energised upstream,
+     dead downstream, the snap between them. Same mark as the command bar. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="96" fill="#0f172a"/>
-  <path d="M270 60 150 280h80l-20 172 130-230h-80z" fill="#f59e0b"/>
+  <rect width="512" height="512" rx="112" fill="#1a1a19"/>
+  <circle cx="256" cy="256" r="176" fill="none" stroke="#3987e5" stroke-width="18" opacity="0.45"/>
+  <path d="M64 256h116" stroke="#0ca30c" stroke-width="34" stroke-linecap="round"/>
+  <path d="M332 256h116" stroke="#d03b3b" stroke-width="34" stroke-linecap="round"/>
+  <path d="M212 190 258 256l-24 30" fill="none" stroke="#fab219" stroke-width="30"
+        stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

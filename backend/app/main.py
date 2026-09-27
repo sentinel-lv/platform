@@ -77,7 +77,7 @@ app.include_router(scada.router)
 app.include_router(ota.router)
 
 @app.websocket("/stream")
-async def stream(ws: WebSocket, feeder_id: str = "KSEB-TVM-F12"):
+async def stream(ws: WebSocket, feeder_id: str = "SLV-TVM-F12"):
     from .ws import hub
     from .ingest import get_state
     await ws.accept()

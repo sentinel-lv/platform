@@ -107,15 +107,24 @@ export default function ArchitectureDiagram() {
           accent="var(--cc-critical)" fill="var(--cc-surface-2)" />
 
         {/* ---- the divider: the whole argument -------------------------- */}
-        <line x1="24" y1="286" x2="856" y2="286"
-          stroke="var(--cc-critical)" strokeWidth="1.5" strokeDasharray="7 5" opacity=".75" />
-        <rect x="24" y="274" width="330" height="24" rx="5" fill="var(--cc-bg)" />
-        <text x="34" y="291" fill="var(--cc-critical)" fontSize="11.5" fontWeight="800"
-          letterSpacing="1.2" fontFamily="Inter, sans-serif">
+        {/* Caption ABOVE the rule, never beside it.
+            SVG text has no layout: its width is whatever the rendered font
+            makes it. Sitting the caption on the same line as the rule left
+            ~11px of clearance with Inter loaded — and the moment Inter has not
+            loaded (first paint, slow link, blocked webfont) the wider fallback
+            runs straight through the rule. Putting it on its own row makes the
+            collision structurally impossible at any font.
+            The rule itself is split so it does not cut the uplink arrow at x=288. */}
+        <text x="24" y="278" fill="var(--cc-critical)" fontSize="11.5" fontWeight="800"
+          letterSpacing="1.1" fontFamily="Inter, sans-serif">
           TRIP PATH ENDS HERE — BELOW IS OBSERVATION ONLY
         </text>
+        <line x1="24" y1="296" x2="266" y2="296"
+          stroke="var(--cc-critical)" strokeWidth="1.5" strokeDasharray="7 5" opacity=".75" />
+        <line x1="310" y1="296" x2="856" y2="296"
+          stroke="var(--cc-critical)" strokeWidth="1.5" strokeDasharray="7 5" opacity=".75" />
 
-        <Arrow x1={288} y1={248} x2={288} y2={326} label="LTE / MQTT · buffered when offline" labelDy={20} />
+        <Arrow x1={288} y1={248} x2={288} y2={326} label="LTE / MQTT · buffered when offline" labelDy={26} />
 
         {/* ---- the cloud ------------------------------------------------ */}
         <Box x={24} y={330} w={264} h={68} title="Backend" sub="ingest · arbiter shadow · audit" />

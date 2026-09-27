@@ -7,6 +7,7 @@ const warmConsole = () => { void import('../pages/Console'); };
 const LINKS: { to: Route; label: string }[] = [
   { to: '/', label: 'Overview' },
   { to: '/evidence', label: 'How it decides' },
+  { to: '/team', label: 'Who built it' },
 ];
 
 /** Marketing-side header. The console has its own CommandBar instead. */

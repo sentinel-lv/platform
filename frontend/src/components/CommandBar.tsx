@@ -1,0 +1,88 @@
+import { useFeeder } from '../store/feederStore';
+import { Dot } from './ui';
+
+const LINK = {
+  live: { dot: 'bg-good', text: 'LIVE', tone: 'text-good', hint: 'Streaming telemetry over WebSocket' },
+  reconnecting: { dot: 'bg-warning', text: 'RECONNECTING', tone: 'text-warning', hint: 'Backend dropped — retrying with exponential backoff' },
+  connecting: { dot: 'bg-ink-3', text: 'CONNECTING', tone: 'text-ink-3', hint: 'Waking the feeder service' },
+} as const;
+
+/** Brand mark: a conductor span with a break in it. */
+function Mark() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true" className="shrink-0">
+      <circle cx="11" cy="11" r="9.25" fill="none" stroke="var(--cc-accent)" strokeWidth="1.5" opacity=".45" />
+      <path d="M2.5 11h5.2" stroke="var(--cc-good)" strokeWidth="2" strokeLinecap="round" />
+      <path d="M14.3 11h5.2" stroke="var(--cc-critical)" strokeWidth="2" strokeLinecap="round" />
+      <path d="M8.9 7.6 11 11l-1.1 1.3" fill="none" stroke="var(--cc-warning)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+export default function CommandBar() {
+  const feederId = useFeeder((s) => s.feederId);
+  const order = useFeeder((s) => s.order);
+  const mode = useFeeder((s) => s.mode);
+  const conn = useFeeder((s) => s.conn);
+  const link = LINK[conn];
+
+  return (
+    <header className="relative z-20 shrink-0 border-b border-line bg-surface-1">
+      {/* the live-link rule: a light travels it only while the stream is up */}
+      <div className="absolute inset-x-0 bottom-0 h-px overflow-hidden bg-line">
+        {conn === 'live' && <div className="cc-sweep absolute inset-0" />}
+      </div>
+
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 px-4 py-2.5">
+        <div className="flex items-center gap-2">
+          <Mark />
+          <div className="leading-tight">
+            <div className="text-sm font-bold tracking-tight">Closed-Circuit</div>
+            <div className="text-2xs uppercase tracking-[.14em] text-ink-3">LV conductor-break protection</div>
+          </div>
+        </div>
+
+        <div className="hidden h-7 w-px bg-line sm:block" />
+
+        <dl className="flex items-center gap-x-4 gap-y-1 text-xs">
+          <div className="flex items-baseline gap-1.5">
+            <dt className="text-2xs uppercase tracking-[.1em] text-ink-3">Feeder</dt>
+            <dd className="cc-mono font-semibold">{feederId}</dd>
+          </div>
+          <div className="flex items-baseline gap-1.5">
+            <dt className="text-2xs uppercase tracking-[.1em] text-ink-3">Nodes</dt>
+            <dd className="cc-mono font-semibold tabular-nums">{order.length}</dd>
+          </div>
+          <div className="flex items-baseline gap-1.5">
+            <dt className="text-2xs uppercase tracking-[.1em] text-ink-3">Mode</dt>
+            <dd
+              className={`cc-mono font-semibold ${mode === 'AUTO' ? 'text-warning' : 'text-ink-2'}`}
+              title={
+                mode === 'AUTO'
+                  ? 'Auto-isolation armed — the gateway may drive the relay'
+                  : 'Default. The system alerts but never drives the relay; the utility opts into auto-isolation per feeder.'
+              }
+            >
+              {mode}
+            </dd>
+          </div>
+        </dl>
+
+        <div className="ml-auto flex items-center gap-3">
+          <span className={`flex items-center gap-1.5 text-2xs font-bold tracking-[.12em] ${link.tone}`} title={link.hint}>
+            <Dot className={link.dot} pulse={conn !== 'live'} />
+            {link.text}
+          </span>
+
+          {/* Demo honesty (README §7): stated up front, never discovered. */}
+          <span
+            className="rounded border border-line bg-surface-2 px-2 py-1 text-2xs font-semibold text-ink-2"
+            title="The feeder is simulated. The consensus engine, arbiter and latency numbers are real code running live."
+          >
+            Simulated feeder<span className="mx-1.5 text-ink-3">·</span>live consensus engine
+          </span>
+        </div>
+      </div>
+    </header>
+  );
+}

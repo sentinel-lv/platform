@@ -14,7 +14,7 @@ You own `decide()`. It is the single most reused piece of code in the project â€
 | Ingest | in-process pub/sub from `simulator/` | MQTT (EMQX or Mosquitto) |
 | Store | in-memory ring buffer | TimescaleDB / Postgres |
 | Fan-out | native WebSocket | same, behind Redis pub/sub if multi-instance |
-| Deploy | Render / Railway free tier | containerised, wherever KSEBL permits |
+| Deploy | Render / Railway free tier | containerised, wherever the adopting utility permits |
 
 Skip the database for M1. A ring buffer of the last 30 minutes is enough for the demo and saves you a day.
 
@@ -118,7 +118,7 @@ Read section 5 of `docs/PROTOCOL.md` for the signature and veto rules. Beyond th
 - [x] Archive seam + Timescale schema (`archive.py` FileArchive default with retention prune + `docs/timescale.sql` hypertable + 90-day policy; live DB needs prod host)
 - [x] Device registry + provision/revoke API (`security.py`, `/devices`); operator token gate (opt-in via `OPERATOR_TOKEN`, demo stays open); CA + gateway mTLS wiring needs hardware
 - [x] Escalation ladder + sender interface (`alerts.py`, FakeSender tested; MSG91/Twilio/FCM creds needed for live sends)
-- [ ] Multi-tenant auth scoped to KSEBL section/division (open: single-feeder demo)
+- [ ] Multi-tenant auth scoped to utility section/division (open: single-feeder demo)
 - [x] OTA artifact registry with sha256 integrity (`ota.py`, `/ota`; gateway-side signature check + release key process open)
 - [x] IEC-104 read-only stub (`iec104.py` IOA map + `/scada/points`; TCP codec open)
 - [x] Structured audit log (`audit.py`, `/audit`; mode/config/ack/provision recorded with actor; shown in UI AuditLog)

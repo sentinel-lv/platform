@@ -2,12 +2,274 @@
 @tailwind components;
 @tailwind utilities;
 
-.maplibregl-marker { cursor: pointer; }
-.pole-pin {
-  width: 26px; height: 26px; border-radius: 9999px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 9px; font-weight: 700; color: #fff;
-  border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,.4);
+/* ==========================================================================
+   Closed-Circuit — operator console design tokens
+   --------------------------------------------------------------------------
+   Single source of truth for colour. Tailwind maps its palette onto these
+   variables (see tailwind.config.js); the few hexes JavaScript needs for
+   MapLibre paint expressions and Recharts strokes are mirrored in
+   src/theme/tokens.ts, which asserts against these values in dev.
+
+   The surface and status steps come from a validated palette:
+     - status hues are fixed and never themed
+     - every one of them clears 3:1 against the dark surface
+     - red/green sit at CVD deltaE 4.1, i.e. indistinguishable to a deutan
+       viewer, so colour NEVER carries state on its own here. Every state is
+       rendered as colour + glyph + text label (src/theme/state.tsx).
+   ========================================================================== */
+:root,
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  /* surfaces — warm neutral, darkest to lightest */
+  --cc-bg:         #121211;
+  --cc-surface-1:  #1a1a19;
+  --cc-surface-2:  #212120;
+  --cc-surface-3:  #2b2b29;
+  --cc-line:       #32322f;
+  --cc-line-soft:  #262624;
+
+  /* ink */
+  --cc-text:       #ffffff;
+  --cc-text-2:     #c3c2b7;
+  --cc-text-3:     #8b8a80;
+
+  /* status — fixed, never themed */
+  --cc-good:       #0ca30c;
+  --cc-warning:    #fab219;
+  --cc-critical:   #d03b3b;
+  --cc-accent:     #3987e5;
+
+  /* tinted washes for panels/badges that must stay legible on dark */
+  --cc-good-dim:     #0ca30c26;
+  --cc-warning-dim:  #fab21926;
+  --cc-critical-dim: #d03b3b26;
+  --cc-accent-dim:   #3987e526;
 }
-@keyframes cascade-pulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
-.cascade-pulse { animation: cascade-pulse 1.1s ease-in-out infinite; }
+
+/* --- light theme ---------------------------------------------------------
+   Selected for the light surface, not flipped from the dark one. The status
+   hues are deliberately unchanged — they are fixed and never themed — which
+   is why every state still ships its glyph and label: on this surface
+   warning sits below 3:1, and the icon + label pairing is the mitigation. */
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  --cc-bg:         #f4f4f1;
+  --cc-surface-1:  #ffffff;
+  --cc-surface-2:  #fbfbf9;
+  --cc-surface-3:  #eeede9;
+  --cc-line:       #dedcd6;
+  --cc-line-soft:  #ebe9e4;
+
+  --cc-text:       #14140f;
+  --cc-text-2:     #4d4c47;
+  --cc-text-3:     #77766f;
+
+  /* status: same four hues, unchanged across themes */
+  --cc-good:       #0ca30c;
+  --cc-warning:    #fab219;
+  --cc-critical:   #d03b3b;
+  --cc-accent:     #2a78d6;   /* blue stepped for a light surface */
+
+  --cc-good-dim:     #0ca30c1f;
+  --cc-warning-dim:  #fab2192e;
+  --cc-critical-dim: #d03b3b1f;
+  --cc-accent-dim:   #2a78d61f;
+}
+
+html, body, #root { height: 100%; }
+
+body {
+  background: var(--cc-bg);
+  color: var(--cc-text);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-feature-settings: "cv02" 1, "cv03" 1, "cv04" 1;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Numbers in columns must align; a hero figure must not. Tailwind's
+   `tabular-nums` is applied per element, never globally. */
+.cc-mono {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-feature-settings: "zero" 1;
+}
+
+/* --- scrollbars: present but recessive ---------------------------------- */
+.cc-scroll { scrollbar-width: thin; scrollbar-color: var(--cc-surface-3) transparent; }
+.cc-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+.cc-scroll::-webkit-scrollbar-track { background: transparent; }
+.cc-scroll::-webkit-scrollbar-thumb {
+  background: var(--cc-surface-3); border-radius: 99px; border: 2px solid transparent;
+  background-clip: content-box;
+}
+.cc-scroll::-webkit-scrollbar-thumb:hover { background: #3a3a37; background-clip: content-box; }
+
+/* --- focus: one visible ring everywhere --------------------------------- */
+:where(a, button, input, select, [tabindex]):focus-visible {
+  outline: 2px solid var(--cc-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* --- map ---------------------------------------------------------------- */
+.maplibregl-marker { cursor: pointer; }
+.maplibregl-ctrl-group {
+  background: var(--cc-surface-2) !important;
+  border: 1px solid var(--cc-line) !important;
+  box-shadow: none !important;
+}
+.maplibregl-ctrl-group button + button { border-top: 1px solid var(--cc-line) !important; }
+.maplibregl-ctrl-group button .maplibregl-ctrl-icon { filter: invert(1) brightness(.85); }
+:root[data-theme='light'] .maplibregl-ctrl-group button .maplibregl-ctrl-icon { filter: none; }
+.maplibregl-ctrl-attrib {
+  background: color-mix(in srgb, var(--cc-bg) 78%, transparent) !important;
+  color: var(--cc-text-3) !important;
+  font-size: 10px !important;
+}
+.maplibregl-ctrl-attrib a { color: var(--cc-text-2) !important; }
+
+/* Pole pin: a glyph in a ring. Colour is the fast channel, the glyph is the
+   channel that survives colour blindness and a washed-out projector. */
+.cc-pin {
+  width: 30px; height: 30px; border-radius: 9999px;
+  display: grid; place-items: center;
+  font-size: 13px; font-weight: 700; line-height: 1;
+  color: #fff;
+  border: 2px solid rgba(255,255,255,.92);
+  box-shadow: 0 2px 8px rgba(0,0,0,.65);
+  transition: scale .16s ease, box-shadow .16s ease;
+}
+.cc-pin:hover { scale: 1.12; }   /* `scale`, not `transform` — see FeederMap */
+.cc-pin[data-alarm="true"] { animation: cc-pin-alarm 1.15s ease-in-out infinite; }
+
+@keyframes cc-pin-alarm {
+  0%, 100% { box-shadow: 0 2px 8px rgba(0,0,0,.65), 0 0 0 0 var(--cc-critical-dim); }
+  50%      { box-shadow: 0 2px 8px rgba(0,0,0,.65), 0 0 0 10px transparent; }
+}
+
+/* --- motion ------------------------------------------------------------- */
+@keyframes cc-pulse   { 0%,100% { opacity: 1 } 50% { opacity: .38 } }
+@keyframes cc-rise    { from { opacity: 0; transform: translateY(6px) } to { opacity: 1; transform: none } }
+@keyframes cc-sweep   { from { transform: translateX(-100%) } to { transform: translateX(300%) } }
+
+.cc-pulse { animation: cc-pulse 1.15s ease-in-out infinite; }
+.cc-rise  { animation: cc-rise .32s cubic-bezier(.22,1,.36,1) both; }
+
+/* A thin light travelling along the live-link rule: the one piece of ambient
+   motion that says "this is a stream, not a screenshot". */
+.cc-sweep::after {
+  content: ""; position: absolute; inset: 0 auto 0 0; width: 33%;
+  background: linear-gradient(90deg, transparent, var(--cc-accent), transparent);
+  animation: cc-sweep 2.6s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+  }
+}
+
+/* ==========================================================================
+   Landing explainer loop (CascadeFilm) — one 9s timeline shared by every
+   element, so the stages stay in step without any JavaScript.
+   ========================================================================== */
+.cf-node-ok { fill: var(--cc-good); }
+
+.cf-node      { fill: var(--cc-good); animation: cf-node 9s ease-in-out infinite; }
+.cf-node-0    { animation-delay: .15s; }
+.cf-node-1    { animation-delay: .45s; }
+.cf-node-2    { animation-delay: .75s; }
+.cf-node-3    { animation-delay: 1.05s; }
+
+.cf-span       { stroke: var(--cc-good); animation: cf-span 9s ease-in-out infinite; }
+.cf-downstream { stroke: var(--cc-good); animation: cf-downstream 9s ease-in-out infinite; }
+.cf-snap       { opacity: 0; animation: cf-snap 9s ease-in-out infinite; }
+.cf-verdict    { opacity: 0; animation: cf-verdict 9s ease-in-out infinite; }
+
+.cf-vote   { opacity: 0; stroke-dasharray: 5 7; animation: cf-vote 9s ease-in-out infinite; }
+.cf-vote-0 { animation-delay: 2.2s; }
+.cf-vote-1 { animation-delay: 2.45s; }
+.cf-vote-2 { animation-delay: 2.7s; }
+
+@keyframes cf-node {
+  0%, 18%   { fill: var(--cc-good); }
+  26%, 46%  { fill: var(--cc-warning); }   /* SUSPECT */
+  54%, 82%  { fill: var(--cc-critical); }  /* CONFIRMED */
+  92%, 100% { fill: var(--cc-good); }      /* reset for the next loop */
+}
+@keyframes cf-span {
+  0%, 18%   { stroke: var(--cc-good); opacity: 1; }
+  24%, 82%  { stroke: var(--cc-critical); opacity: .18; }
+  92%, 100% { stroke: var(--cc-good); opacity: 1; }
+}
+@keyframes cf-downstream {
+  0%, 18%   { stroke: var(--cc-good); }
+  26%, 46%  { stroke: var(--cc-warning); }
+  54%, 82%  { stroke: var(--cc-critical); }
+  92%, 100% { stroke: var(--cc-good); }
+}
+@keyframes cf-snap {
+  0%, 19%   { opacity: 0; }
+  24%, 84%  { opacity: 1; }
+  92%, 100% { opacity: 0; }
+}
+@keyframes cf-vote {
+  0%, 2%   { opacity: 0; stroke-dashoffset: 0; }
+  6%       { opacity: 1; }
+  14%      { opacity: 0; stroke-dashoffset: -60; }
+  100%     { opacity: 0; }
+}
+@keyframes cf-verdict {
+  0%, 52%   { opacity: 0; }
+  58%, 82%  { opacity: 1; }
+  90%, 100% { opacity: 0; }
+}
+
+/* --- range inputs: the default blue slider is the one control that gives a
+       dark console away as an unstyled form ------------------------------- */
+.cc-range {
+  -webkit-appearance: none; appearance: none;
+  width: 100%; height: 18px; background: transparent; cursor: pointer;
+}
+.cc-range::-webkit-slider-runnable-track {
+  height: 4px; border-radius: 99px; background: var(--cc-surface-3);
+}
+.cc-range::-moz-range-track {
+  height: 4px; border-radius: 99px; background: var(--cc-surface-3);
+}
+.cc-range::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 14px; height: 14px; margin-top: -5px; border-radius: 99px;
+  background: var(--cc-accent); border: 2px solid var(--cc-surface-1);
+  transition: scale .12s ease;
+}
+.cc-range::-moz-range-thumb {
+  width: 14px; height: 14px; border-radius: 99px;
+  background: var(--cc-accent); border: 2px solid var(--cc-surface-1);
+}
+.cc-range:hover::-webkit-slider-thumb { scale: 1.15; }
+
+/* --- checkbox ----------------------------------------------------------- */
+.cc-check {
+  appearance: none; width: 15px; height: 15px; flex: none;
+  border: 1px solid var(--cc-line); border-radius: 4px; background: var(--cc-surface-2);
+  display: grid; place-content: center; cursor: pointer; transition: background .12s ease;
+}
+.cc-check::after {
+  content: "✓"; font-size: 10px; font-weight: 700; color: #fff;
+  transform: scale(0); transition: transform .12s ease;
+}
+.cc-check:checked { background: var(--cc-accent); border-color: var(--cc-accent); }
+.cc-check:checked::after { transform: scale(1); }
+
+/* --- text inputs / selects ---------------------------------------------- */
+.cc-input {
+  width: 100%; border-radius: 4px; padding: 5px 8px;
+  background: var(--cc-surface-2); border: 1px solid var(--cc-line); color: var(--cc-text);
+  font-size: 12px;
+}
+.cc-input:hover { border-color: var(--cc-text-3); }

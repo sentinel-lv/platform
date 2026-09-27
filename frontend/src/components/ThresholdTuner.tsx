@@ -1,16 +1,17 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api/client';
 import { useFeeder } from '../store/feederStore';
+import { Btn, Panel } from './ui';
 
 // Per-feeder threshold tuning (frontend v2): writes to ArbiterConfig via
 // PATCH /feeders/{id}/config. The gateway pulls the signed config; the cloud
 // copy is display/audit only — it never trips anything itself.
-const FIELDS: { key: string; label: string; step: number }[] = [
-  { key: 'collapse_threshold_pct', label: 'Collapse % (SUSPECT below)', step: 1 },
-  { key: 'sustain_cycles', label: 'Sustain windows', step: 1 },
-  { key: 'quorum_required', label: 'Quorum votes', step: 1 },
-  { key: 'quorum_window_ms', label: 'Vote window ms', step: 100 },
-  { key: 'recovery_threshold_pct', label: 'Recover % (above)', step: 1 },
+const FIELDS: { key: string; label: string; step: number; unit?: string; hint: string }[] = [
+  { key: 'collapse_threshold_pct', label: 'Collapse threshold', step: 1, unit: '%', hint: 'Deviation below which a node enters SUSPECT' },
+  { key: 'sustain_cycles', label: 'Sustain windows', step: 1, hint: 'Consecutive samples required before SUSPECT — this is what rejects a switching transient' },
+  { key: 'quorum_required', label: 'Quorum votes', step: 1, hint: 'Downstream neighbours that must agree before a fault is asserted' },
+  { key: 'quorum_window_ms', label: 'Vote window', step: 100, unit: 'ms', hint: 'Votes older than this expire' },
+  { key: 'recovery_threshold_pct', label: 'Recovery threshold', step: 1, unit: '%', hint: 'Deviation above which a SUSPECT node returns to NORMAL' },
 ];
 
 export default function ThresholdTuner() {
@@ -49,32 +50,55 @@ export default function ThresholdTuner() {
 
   if (Object.keys(vals).length === 0) return null;
   return (
-    <div data-testid="tuner" className="rounded border bg-white p-2 shadow-sm">
-      <div className="mb-1 text-sm font-bold">Threshold tuning <span className="font-normal text-slate-500">(per feeder)</span></div>
-      {FIELDS.map((f) => (
-        <label key={f.key} className="block text-xs">
-          {f.label}: <span className="font-mono font-bold">{vals[f.key]}</span>
-          <input
-            data-testid={`tune-${f.key}`}
-            type="range" className="w-full"
-            min={ranges[f.key]?.min ?? 0} max={ranges[f.key]?.max ?? 100} step={f.step}
-            value={vals[f.key] ?? 0}
-            onChange={(e) => setVals({ ...vals, [f.key]: Number(e.target.value) })}
-          />
-        </label>
-      ))}
-      <label className="flex items-center gap-2 text-xs">
-        <input type="checkbox" checked={veto} onChange={(e) => setVeto(e.target.checked)} />
-        Global-collapse veto (substation outage never trips)
-      </label>
-      <div className="mt-2 flex gap-2">
-        <button data-testid="tune-save" onClick={() => save({ ...vals, global_collapse_veto: veto })} className="flex-1 rounded bg-slate-800 px-2 py-1.5 text-xs font-bold text-white">Save</button>
-        <button
-          onClick={() => save({ collapse_threshold_pct: -60, sustain_cycles: 5, quorum_required: 2, quorum_window_ms: 1500, recovery_threshold_pct: -20, global_collapse_veto: true })}
-          className="rounded border px-2 py-1.5 text-xs"
-        >Defaults</button>
+    <Panel
+      title="Threshold tuning"
+      right={<span className="text-2xs text-ink-3">per feeder · ArbiterConfig</span>}
+      className="mx-auto w-full max-w-2xl"
+      bodyClassName="grid gap-3 sm:grid-cols-2"
+    >
+      <div data-testid="tuner" className="space-y-2.5 sm:col-span-2 sm:grid sm:grid-cols-2 sm:gap-x-5 sm:gap-y-2.5 sm:space-y-0">
+        {FIELDS.map((f) => (
+          <label key={f.key} className="block" title={f.hint}>
+            <span className="flex items-baseline justify-between gap-2">
+              <span className="text-xs text-ink-2">{f.label}</span>
+              <span className="cc-mono text-xs font-bold tabular-nums text-accent">
+                {vals[f.key]}{f.unit ?? ''}
+              </span>
+            </span>
+            <input
+              data-testid={`tune-${f.key}`}
+              type="range" className="cc-range mt-0.5"
+              min={ranges[f.key]?.min ?? 0} max={ranges[f.key]?.max ?? 100} step={f.step}
+              value={vals[f.key] ?? 0}
+              onChange={(e) => setVals({ ...vals, [f.key]: Number(e.target.value) })}
+            />
+            <span className="block text-2xs leading-tight text-ink-3">{f.hint}</span>
+          </label>
+        ))}
       </div>
-      {msg && <div className="mt-1 text-xs text-slate-600">{msg}</div>}
-    </div>
+
+      <label className="flex items-start gap-2 text-xs text-ink-2 sm:col-span-2">
+        <input type="checkbox" className="cc-check mt-0.5" checked={veto} onChange={(e) => setVeto(e.target.checked)} />
+        <span>
+          Global-collapse veto
+          <span className="block text-2xs text-ink-3">
+            If every node collapses at once it is a substation outage, not a break. Leave this on.
+          </span>
+        </span>
+      </label>
+
+      <div className="flex gap-2 sm:col-span-2">
+        <Btn variant="primary" data-testid="tune-save" className="flex-1" onClick={() => save({ ...vals, global_collapse_veto: veto })}>
+          Save to feeder
+        </Btn>
+        <Btn
+          onClick={() => save({ collapse_threshold_pct: -60, sustain_cycles: 5, quorum_required: 2, quorum_window_ms: 1500, recovery_threshold_pct: -20, global_collapse_veto: true })}
+        >
+          Restore defaults
+        </Btn>
+      </div>
+
+      {msg && <div className="text-2xs text-ink-3 sm:col-span-2">{msg}</div>}
+    </Panel>
   );
 }

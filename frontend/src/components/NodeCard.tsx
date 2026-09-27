@@ -1,43 +1,104 @@
-import { Line, LineChart, ReferenceLine, ResponsiveContainer, YAxis } from 'recharts';
+import { Area, AreaChart, ReferenceLine, ResponsiveContainer, YAxis } from 'recharts';
 import type { NodeView } from '../store/feederStore';
 import { isOffline } from '../store/feederStore';
+import { STATE, StateBadge } from '../theme/state';
+import { TOKENS } from '../theme/tokens';
+import { Meter } from './ui';
 
-const BADGE: Record<string, string> = {
-  NORMAL: 'bg-green-100 text-green-800', SUSPECT: 'bg-amber-100 text-amber-800',
-  CONFIRMED: 'bg-red-100 text-red-800', RECOVERED: 'bg-teal-100 text-teal-800',
-  OFFLINE: 'bg-gray-200 text-gray-700',
-};
+/** LiFePO4 terminal voltage range from PROTOCOL §4.1. */
+const BATT_MIN = 2800;
+const BATT_MAX = 4200;
 
-export default function NodeCard({ id, view }: { id: string; view: NodeView }) {
+function battTone(pct: number): 'good' | 'warning' | 'critical' {
+  if (pct < 20) return 'critical';
+  if (pct < 45) return 'warning';
+  return 'good';
+}
+
+export default function NodeCard({ id, view, selected, onSelect }: {
+  id: string;
+  view: NodeView;
+  selected?: boolean;
+  onSelect?: (id: string) => void;
+}) {
   const { tel, hist, base } = view;
   const offline = isOffline(tel);
   const state = offline ? 'OFFLINE' : tel.state;
+  const style = STATE[state];
+
   const data = hist.map((v, i) => ({ i, v, b: base[i] ?? tel.baseline }));
-  const batt = Math.round(((tel.battery_mv - 2800) / (4200 - 2800)) * 100);
+  const batt = Math.round(((tel.battery_mv - BATT_MIN) / (BATT_MAX - BATT_MIN)) * 100);
+  const dev = tel.deviation_pct;
+
   return (
-    <div data-testid={`node-${id}`} className="rounded border bg-white p-2 shadow-sm">
-      <div className="flex items-center justify-between">
-        <span className="font-mono text-sm font-bold">{id}</span>
-        <span className={`rounded px-1.5 py-0.5 text-xs font-semibold ${BADGE[state]}`}>{state}</span>
+    <button
+      type="button"
+      data-testid={`node-${id}`}
+      onClick={() => onSelect?.(id)}
+      className={`w-full rounded border bg-surface-2 p-2 text-left transition ${
+        selected ? 'border-accent' : 'border-line hover:border-ink-3'
+      }`}
+    >
+      <div className="flex items-center justify-between gap-2">
+        <span className="cc-mono text-sm font-bold tracking-tight">{id}</span>
+        <StateBadge state={state} size="xs" />
       </div>
-      <div className="h-16">
+
+      {/* Sparkline: thin mark, no dots, baseline as a recessive dashed rule.
+          The fill is a faint wash of the state colour so the card reads as a
+          single object at a glance. */}
+      <div className="mt-1.5 h-12" aria-hidden="true">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data}>
+          <AreaChart data={data} margin={{ top: 2, right: 0, bottom: 0, left: 0 }}>
+            <defs>
+              <linearGradient id={`fill-${id}`} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={style.color} stopOpacity={0.28} />
+                <stop offset="100%" stopColor={style.color} stopOpacity={0} />
+              </linearGradient>
+            </defs>
             <YAxis hide domain={['auto', 'auto']} />
-            <ReferenceLine y={tel.baseline} stroke="#94a3b8" strokeDasharray="4 3" label={{ value: 'baseline', fontSize: 9, fill: '#94a3b8', position: 'insideTopRight' }} />
-            <Line type="monotone" dataKey="v" strokeWidth={1.5} dot={false} isAnimationActive={false}
-              stroke={state === 'NORMAL' ? '#16a34a' : state === 'SUSPECT' ? '#f59e0b' : state === 'CONFIRMED' ? '#dc2626' : state === 'RECOVERED' ? '#0d9488' : '#9ca3af'} />
-          </LineChart>
+            <ReferenceLine y={tel.baseline} stroke={TOKENS.text3} strokeDasharray="3 3" strokeWidth={1} />
+            <Area
+              type="monotone"
+              dataKey="v"
+              stroke={style.color}
+              strokeWidth={2}
+              fill={`url(#fill-${id})`}
+              dot={false}
+              isAnimationActive={false}
+            />
+          </AreaChart>
         </ResponsiveContainer>
       </div>
-      <div className="flex justify-between text-xs text-slate-600">
-        <span className="tabular-nums">{tel.efield_rms.toFixed(2)} kV/m ({tel.deviation_pct >= 0 ? '+' : ''}{tel.deviation_pct.toFixed(1)}%)</span>
-        <span className="tabular-nums">{tel.rssi} dBm</span>
+
+      {/* Instrument row. tabular-nums here because these align down a column. */}
+      <dl className="mt-0.5 grid grid-cols-3 gap-x-2 text-2xs">
+        <div>
+          <dt className="text-ink-3">E-field</dt>
+          <dd className="cc-mono tabular-nums text-ink-2">{tel.efield_rms.toFixed(2)}<span className="text-ink-3"> kV/m</span></dd>
+        </div>
+        <div>
+          <dt className="text-ink-3">Deviation</dt>
+          <dd
+            className={`cc-mono tabular-nums font-semibold ${
+              dev <= -60 ? 'text-critical' : dev <= -20 ? 'text-warning' : 'text-ink-2'
+            }`}
+          >
+            {dev >= 0 ? '+' : ''}{dev.toFixed(1)}%
+          </dd>
+        </div>
+        <div>
+          <dt className="text-ink-3">RSSI</dt>
+          <dd className="cc-mono tabular-nums text-ink-2">{tel.rssi}<span className="text-ink-3"> dBm</span></dd>
+        </div>
+      </dl>
+
+      <div className="mt-1.5 flex items-center gap-2">
+        <Meter pct={batt} tone={battTone(batt)} label={`${id} battery`} className="flex-1" />
+        <span className="cc-mono shrink-0 text-2xs tabular-nums text-ink-3">
+          {tel.battery_mv} mV · {tel.temp_c.toFixed(1)} °C
+        </span>
       </div>
-      <div className="mt-1 h-1.5 rounded bg-slate-200">
-        <div className="h-1.5 rounded bg-emerald-500" style={{ width: `${Math.max(0, Math.min(100, batt))}%` }} />
-      </div>
-      <div className="text-[11px] tabular-nums text-slate-500">{tel.battery_mv} mV · {tel.temp_c.toFixed(1)} °C</div>
-    </div>
+    </button>
   );
 }

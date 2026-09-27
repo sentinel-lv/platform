@@ -1,0 +1,147 @@
+import { useEffect, useRef, useState } from 'react';
+import { useFeeder, isOffline, isConfirmedFault } from '../store/feederStore';
+import { Meter, Stat } from './ui';
+
+/** PROTOCOL §4.3: detection→isolation must stay under 2 s. */
+const BUDGET_MS = 2000;
+
+/**
+ * The headline number of the whole project, given the one hero slot in the
+ * view. It is always on screen — before any event it reads "—", so a judge
+ * knows what to watch before they press anything, and the number lands in a
+ * place their eye already knows.
+ *
+ * The value is always the backend's measured latency_ms. Nothing here
+ * animates the digits toward a made-up figure; only the frame reacts.
+ */
+function LatencyHero() {
+  // Derived from the event log rather than from lastFault, so the figure
+  // PERSISTS after the field heals. The hero is the project's proof metric
+  // ("we measured 120 ms"), not a live-fault lamp — a reset or a rejected
+  // false alarm should not blank the number a judge just watched land.
+  const last = useFeeder((s) => s.events.find(isConfirmedFault) ?? null);
+  const ms = last?.latency_ms ?? null;
+  const [flash, setFlash] = useState(false);
+  const seen = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!last || last.event_id === seen.current) return;
+    seen.current = last.event_id;
+    setFlash(true);
+    const t = setTimeout(() => setFlash(false), 1400);
+    return () => clearTimeout(t);
+  }, [last]);
+
+  const within = ms !== null && ms < BUDGET_MS;
+  const tone = ms === null ? 'text-ink-3' : within ? 'text-good' : 'text-critical';
+
+  return (
+    <div
+      className={`flex w-full flex-col justify-center gap-1 border-b border-line px-4 py-2 transition-colors sm:w-auto sm:min-w-[240px] sm:border-b-0 sm:border-r ${
+        flash ? 'bg-critical-dim' : ''
+      }`}
+    >
+      <div className="text-2xs font-semibold uppercase tracking-[.12em] text-ink-3">
+        {ms === null ? 'Detection → isolation' : 'Last measured detection → isolation'}
+      </div>
+
+      {/* Hero figure: >=48px, same sans as the rest, proportional figures.
+          Before the first event the slot holds a smaller placeholder — an
+          em-dash at 56px reads as a broken element, not as "no value yet". */}
+      <div className={`flex items-baseline gap-2 ${tone} ${flash ? 'cc-rise' : ''}`}>
+        {ms === null ? (
+          <span data-testid="hero-latency" className="text-display font-extrabold text-ink-3">
+            ––
+          </span>
+        ) : (
+          <span data-testid="hero-latency" className="text-hero font-extrabold">
+            {ms}
+          </span>
+        )}
+        <span className="text-sm font-semibold text-ink-3">ms</span>
+      </div>
+
+      <Meter
+        pct={ms === null ? 0 : (ms / BUDGET_MS) * 100}
+        tone={ms === null ? 'good' : within ? 'good' : 'critical'}
+        label={`Latency against the ${BUDGET_MS} ms budget`}
+        className="mt-0.5"
+      />
+      <div className="cc-mono text-2xs text-ink-3">
+        {ms === null
+          ? 'awaiting first event'
+          : `${within ? 'within' : 'OVER'} ${BUDGET_MS} ms budget · gateway-measured`}
+      </div>
+    </div>
+  );
+}
+
+export default function KpiStrip() {
+  const order = useFeeder((s) => s.order);
+  const nodes = useFeeder((s) => s.nodes);
+  const events = useFeeder((s) => s.events);
+
+  // Re-evaluate staleness on a ticker so OFFLINE appears without new frames.
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setTick((x) => x + 1), 5000);
+    return () => clearInterval(t);
+  }, []);
+
+  const now = Date.now();
+  const live = order.filter((id) => {
+    const tel = nodes[id]?.tel;
+    return tel && !isOffline(tel, now) && tel.state === 'NORMAL';
+  }).length;
+  const offline = order.filter((id) => isOffline(nodes[id]?.tel, now)).length;
+  const alarmed = order.length - live - offline;
+
+  // Count verdicts, not relay operations: in ALERT_ONLY (the default) the
+  // arbiter confirms the fault and names the span but never drives the relay,
+  // so counting `isolated` would read 0 through an entire successful demo.
+  const breaks = events.filter(isConfirmedFault).length;
+  const actuated = events.filter((e) => e.isolated).length;
+  const rejected = events.filter((e) => e.type === 'FALSE_POSITIVE_REJECTED').length;
+
+  const healthTone = alarmed > 0 ? 'critical' : offline > 0 ? 'warning' : 'good';
+
+  return (
+    <div className="shrink-0 border-b border-line bg-surface-1">
+      <div className="flex flex-wrap items-stretch">
+        <LatencyHero />
+        {/* two-up on phones so the tiles do not each claim a full row */}
+        <div className="grid w-full grid-cols-2 sm:flex sm:w-auto sm:flex-1 sm:flex-wrap">
+
+        <Stat
+          label="Feeder health"
+          value={`${live}/${order.length || 0}`}
+          unit="normal"
+          tone={healthTone}
+          hint={`${live} normal · ${alarmed} in alarm · ${offline} offline`}
+        />
+        <Stat
+          label="Breaks detected"
+          value={breaks}
+          tone={breaks ? 'critical' : 'default'}
+          hint={
+            `Quorum reached and a fault span named. ${actuated} of ${breaks} drove an isolation — ` +
+            'the rest were alert-only, which is the default until a utility opts the feeder into AUTO.'
+          }
+        />
+        <Stat
+          label="False alarms rejected"
+          value={rejected}
+          tone={rejected ? 'accent' : 'default'}
+          hint="Rain, vegetation and transients that reached SUSPECT and were correctly refused — the number that proves the system is not trigger-happy"
+        />
+        <Stat
+          label="Trip path"
+          value="GATEWAY"
+          mono={false}
+          hint="The isolation decision executes on the gateway at the feeder head, never in the cloud. This dashboard observes and audits."
+        />
+        </div>
+      </div>
+    </div>
+  );
+}

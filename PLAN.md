@@ -1,6 +1,6 @@
 # PLAN.md — Closed-Circuit build plan (SIH 2026)
 
-Team VITBSIH26-388 · Disaster Management / Hardware · KSEBL problem · Mentor Dr. Abha Trivedi.
+Team VITBSIH26-388 · Open Innovation / Disaster Management · self-proposed problem · Mentor Dr. Abha Trivedi.
 Derived strictly from `README.pdf` (overview), `README (1)–(8).pdf` (six tracks), `PROTOCOL.pdf` (contract), `CONTRIBUTING.pdf` (process). `docs/PROTOCOL.md` is frozen (M0); everything else follows it.
 
 ## 0. Targets (README §2)
@@ -132,7 +132,7 @@ Field→SUSPECT 250 ms (5 windows) + gossip 600 ms + decide <10 ms + relay 100�
 ## 8. Demo-day checklist + panel Q&A (CONTRIBUTING §6–7)
 
 Checklist: hotspot test · warmed backend · 90-s recording local · rig + spares · field video local · plots + BOM handouts · laptop/HDMI/ext.
-Rehearse owners: rain→data+button · radio-fail→Rule 1 no-trip · smart-meter→cost/no-outage/unmetered · liability→ALERT_ONLY opt-in · cost→BOM.csv · KSEBL→honest pilot (never overclaim — trap question).
+Rehearse owners: rain→data+button · radio-fail→Rule 1 no-trip · smart-meter→cost/no-outage/unmetered · liability→ALERT_ONLY opt-in · cost→BOM.csv · utility-validation→honest pilot (never overclaim — trap question; no DISCOM has reviewed this).
 
 ## 9. Immediate next actions (do in this order)
 

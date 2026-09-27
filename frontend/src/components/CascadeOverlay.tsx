@@ -24,7 +24,7 @@ export default function CascadeOverlay() {
     <div
       data-testid="cascade"
       role="alert"
-      className="cc-rise pointer-events-auto absolute left-3 right-3 top-3 z-10 overflow-hidden rounded-panel border border-critical bg-surface-1/95 shadow-lift backdrop-blur"
+      className="cc-rise pointer-events-auto absolute left-3 right-3 top-3 z-10 overflow-hidden rounded-panel border border-critical bg-surface-1 shadow-lift"
     >
       <div className="flex items-start gap-3 p-3">
         <span aria-hidden="true" className="cc-pulse mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-critical text-sm font-bold text-white">

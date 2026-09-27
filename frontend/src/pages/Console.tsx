@@ -5,6 +5,7 @@ import FeederMap from '../components/FeederMap';
 import NodePanel from '../components/NodePanel';
 import ScenarioPanel from '../components/ScenarioPanel';
 import CascadeOverlay from '../components/CascadeOverlay';
+import NodeInspector from '../components/NodeInspector';
 import EventTimeline from '../components/EventTimeline';
 import CrewAlertMock from '../components/CrewAlertMock';
 import ThresholdTuner from '../components/ThresholdTuner';
@@ -52,6 +53,7 @@ export default function Console() {
           <div className="relative h-[54vh] shrink-0 lg:h-auto lg:min-h-0 lg:flex-1">
             <FeederMap />
             <CascadeOverlay />
+            <NodeInspector />
           </div>
           <EventTimeline />
         </div>

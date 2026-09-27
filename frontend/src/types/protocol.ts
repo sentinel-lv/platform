@@ -30,6 +30,12 @@ export interface FeederEvent {
 }
 export type FrameKind = 'telemetry' | 'vote' | 'command' | 'event' | 'hello';
 export interface Pole { node_id: string; lat: number; lng: number; span_m: number }
+/** Commissioning metadata (backend geo registry). node_id is immutable. */
+export interface NodeMeta {
+  node_id: string;
+  lat: number; lng: number; span_m: number;
+  label: string; device_id: string; notes: string;
+}
 export interface FeederGeo {
   feeder_id: string; mode: string;
   substation: { lat: number; lng: number };

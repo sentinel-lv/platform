@@ -1,23 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useFeeder, isOffline } from '../store/feederStore';
 import { Link } from '../router';
-import { STATE, STATE_ORDER } from '../theme/state';
 import NodeCard from './NodeCard';
+import StateKey from './StateKey';
 import { Empty, Panel } from './ui';
-
-/** Compact legend — the key to every pin, badge and span on screen. */
-function Legend() {
-  return (
-    <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 border-b border-line-soft px-3 py-1.5">
-      {STATE_ORDER.map((s) => (
-        <span key={s} className="flex items-center gap-1 text-2xs text-ink-3" title={STATE[s].meaning}>
-          <span aria-hidden="true" style={{ color: STATE[s].color }}>{STATE[s].glyph}</span>
-          {STATE[s].label}
-        </span>
-      ))}
-    </div>
-  );
-}
 
 export default function NodePanel() {
   const order = useFeeder((s) => s.order);
@@ -60,7 +46,7 @@ export default function NodePanel() {
       dense
       bodyClassName="flex flex-col"
     >
-      <Legend />
+      <StateKey compact />
       <div className="cc-scroll flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto p-2">
         {order.map((id) =>
           nodes[id] ? (

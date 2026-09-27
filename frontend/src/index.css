@@ -17,7 +17,8 @@
        viewer, so colour NEVER carries state on its own here. Every state is
        rendered as colour + glyph + text label (src/theme/state.tsx).
    ========================================================================== */
-:root {
+:root,
+:root[data-theme='dark'] {
   color-scheme: dark;
 
   /* surfaces — warm neutral, darkest to lightest */
@@ -44,6 +45,37 @@
   --cc-warning-dim:  #fab21926;
   --cc-critical-dim: #d03b3b26;
   --cc-accent-dim:   #3987e526;
+}
+
+/* --- light theme ---------------------------------------------------------
+   Selected for the light surface, not flipped from the dark one. The status
+   hues are deliberately unchanged — they are fixed and never themed — which
+   is why every state still ships its glyph and label: on this surface
+   warning sits below 3:1, and the icon + label pairing is the mitigation. */
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  --cc-bg:         #f4f4f1;
+  --cc-surface-1:  #ffffff;
+  --cc-surface-2:  #fbfbf9;
+  --cc-surface-3:  #eeede9;
+  --cc-line:       #dedcd6;
+  --cc-line-soft:  #ebe9e4;
+
+  --cc-text:       #14140f;
+  --cc-text-2:     #4d4c47;
+  --cc-text-3:     #77766f;
+
+  /* status: same four hues, unchanged across themes */
+  --cc-good:       #0ca30c;
+  --cc-warning:    #fab219;
+  --cc-critical:   #d03b3b;
+  --cc-accent:     #2a78d6;   /* blue stepped for a light surface */
+
+  --cc-good-dim:     #0ca30c1f;
+  --cc-warning-dim:  #fab2192e;
+  --cc-critical-dim: #d03b3b1f;
+  --cc-accent-dim:   #2a78d61f;
 }
 
 html, body, #root { height: 100%; }
@@ -90,8 +122,9 @@ body {
 }
 .maplibregl-ctrl-group button + button { border-top: 1px solid var(--cc-line) !important; }
 .maplibregl-ctrl-group button .maplibregl-ctrl-icon { filter: invert(1) brightness(.85); }
+:root[data-theme='light'] .maplibregl-ctrl-group button .maplibregl-ctrl-icon { filter: none; }
 .maplibregl-ctrl-attrib {
-  background: rgba(18,18,17,.72) !important;
+  background: color-mix(in srgb, var(--cc-bg) 78%, transparent) !important;
   color: var(--cc-text-3) !important;
   font-size: 10px !important;
 }

@@ -139,3 +139,59 @@ body {
     transition-duration: .001ms !important;
   }
 }
+
+/* ==========================================================================
+   Landing explainer loop (CascadeFilm) — one 9s timeline shared by every
+   element, so the stages stay in step without any JavaScript.
+   ========================================================================== */
+.cf-node-ok { fill: var(--cc-good); }
+
+.cf-node      { fill: var(--cc-good); animation: cf-node 9s ease-in-out infinite; }
+.cf-node-0    { animation-delay: .15s; }
+.cf-node-1    { animation-delay: .45s; }
+.cf-node-2    { animation-delay: .75s; }
+.cf-node-3    { animation-delay: 1.05s; }
+
+.cf-span       { stroke: var(--cc-good); animation: cf-span 9s ease-in-out infinite; }
+.cf-downstream { stroke: var(--cc-good); animation: cf-downstream 9s ease-in-out infinite; }
+.cf-snap       { opacity: 0; animation: cf-snap 9s ease-in-out infinite; }
+.cf-verdict    { opacity: 0; animation: cf-verdict 9s ease-in-out infinite; }
+
+.cf-vote   { opacity: 0; stroke-dasharray: 5 7; animation: cf-vote 9s ease-in-out infinite; }
+.cf-vote-0 { animation-delay: 2.2s; }
+.cf-vote-1 { animation-delay: 2.45s; }
+.cf-vote-2 { animation-delay: 2.7s; }
+
+@keyframes cf-node {
+  0%, 18%   { fill: var(--cc-good); }
+  26%, 46%  { fill: var(--cc-warning); }   /* SUSPECT */
+  54%, 82%  { fill: var(--cc-critical); }  /* CONFIRMED */
+  92%, 100% { fill: var(--cc-good); }      /* reset for the next loop */
+}
+@keyframes cf-span {
+  0%, 18%   { stroke: var(--cc-good); opacity: 1; }
+  24%, 82%  { stroke: var(--cc-critical); opacity: .18; }
+  92%, 100% { stroke: var(--cc-good); opacity: 1; }
+}
+@keyframes cf-downstream {
+  0%, 18%   { stroke: var(--cc-good); }
+  26%, 46%  { stroke: var(--cc-warning); }
+  54%, 82%  { stroke: var(--cc-critical); }
+  92%, 100% { stroke: var(--cc-good); }
+}
+@keyframes cf-snap {
+  0%, 19%   { opacity: 0; }
+  24%, 84%  { opacity: 1; }
+  92%, 100% { opacity: 0; }
+}
+@keyframes cf-vote {
+  0%, 2%   { opacity: 0; stroke-dashoffset: 0; }
+  6%       { opacity: 1; }
+  14%      { opacity: 0; stroke-dashoffset: -60; }
+  100%     { opacity: 0; }
+}
+@keyframes cf-verdict {
+  0%, 52%   { opacity: 0; }
+  58%, 82%  { opacity: 1; }
+  90%, 100% { opacity: 0; }
+}

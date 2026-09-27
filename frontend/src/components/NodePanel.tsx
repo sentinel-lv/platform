@@ -36,7 +36,7 @@ export default function NodePanel() {
           <Link
             to="/nodes"
             title="See every node's field trace side by side"
-            className="rounded border border-line px-1.5 py-0.5 text-2xs font-semibold text-ink-3 transition hover:border-ink-3 hover:text-ink-2"
+            className="flex min-h-[32px] items-center rounded border border-line px-2 text-2xs font-semibold text-ink-3 transition hover:border-ink-3 hover:text-ink-2 sm:min-h-0 sm:py-0.5"
           >
             Expand
           </Link>

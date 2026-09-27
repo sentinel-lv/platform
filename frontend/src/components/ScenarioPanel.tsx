@@ -44,7 +44,7 @@ const GROUPS: { title: string; note: string; tone: string; items: { id: string; 
   },
 ];
 
-export default function ScenarioPanel() {
+export default function ScenarioPanel({ bare = false }: { bare?: boolean } = {}) {
   const running = useFeeder((s) => s.scenarioRunning);
   const setScenario = useFeeder((s) => s.setScenario);
   const [err, setErr] = useState<string | null>(null);
@@ -62,25 +62,8 @@ export default function ScenarioPanel() {
     setTimeout(() => { if (get().scenarioRunning === id) setScenario(null); }, 35000);
   };
 
-  return (
-    <Panel
-      title="Scenarios"
-      right={
-        <button
-          data-testid="scenario-reset"
-          onClick={() => fire('reset')}
-          /* Never gated on another scenario running. Reset is the escape hatch:
-             if a scenario hangs mid-demo, this is the button that saves it. */
-          disabled={running === 'reset'}
-          title="Return every node to NORMAL — a clean slate for the next run"
-          className="rounded border border-line px-2 py-0.5 text-2xs font-semibold text-ink-3 transition hover:border-ink-3 hover:text-ink-2 disabled:opacity-40"
-        >
-          {running === 'reset' ? 'Resetting…' : 'Reset'}
-        </button>
-      }
-      className="shrink-0"
-      bodyClassName="flex flex-col gap-3"
-    >
+  const body = (
+    <>
       {err && (
         <div role="alert" className="rounded border border-critical bg-critical-dim px-2 py-1.5 text-xs text-critical">
           {err}
@@ -117,6 +100,37 @@ export default function ScenarioPanel() {
           </div>
         </div>
       ))}
+    </>
+  );
+
+  const reset = (
+    <button
+      data-testid="scenario-reset"
+      onClick={() => fire('reset')}
+      /* Never gated on another scenario running. Reset is the escape hatch:
+         if a scenario hangs mid-demo, this is the button that saves it. */
+      disabled={running === 'reset'}
+      title="Return every node to NORMAL — a clean slate for the next run"
+      className="flex min-h-[32px] items-center rounded border border-line px-2.5 text-2xs font-semibold text-ink-3 transition hover:border-ink-3 hover:text-ink-2 disabled:opacity-40 sm:min-h-0 sm:py-0.5"
+    >
+      {running === 'reset' ? 'Resetting…' : 'Reset'}
+    </button>
+  );
+
+  // In the mobile sheet the surrounding dialog already supplies a heading, so
+  // the panel would otherwise read "Scenarios" twice.
+  if (bare) {
+    return (
+      <div className="flex flex-col gap-3">
+        <div className="flex justify-end">{reset}</div>
+        {body}
+      </div>
+    );
+  }
+
+  return (
+    <Panel title="Scenarios" right={reset} className="shrink-0" bodyClassName="flex flex-col gap-3">
+      {body}
     </Panel>
   );
 }

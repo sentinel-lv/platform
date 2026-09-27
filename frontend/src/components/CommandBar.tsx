@@ -35,14 +35,14 @@ export default function CommandBar() {
         {conn === 'live' && <div className="cc-sweep absolute inset-0" />}
       </div>
 
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 px-4 py-2.5">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 px-3 py-2 sm:px-4 sm:py-2.5">
         {/* The mark is the way back out of the console. Without it the only
             exit from a full-screen operator view was the browser's back
             button. */}
         <Link
           to="/"
           title="Back to the overview"
-          className="group flex items-center gap-2 rounded transition hover:opacity-90"
+          className="group flex min-h-[40px] items-center gap-2 rounded transition hover:opacity-90 sm:min-h-0"
         >
           <Mark />
           <div className="leading-tight">
@@ -52,23 +52,23 @@ export default function CommandBar() {
                 ← overview
               </span>
             </div>
-            <div className="text-2xs uppercase tracking-[.14em] text-ink-3">LV conductor-break protection</div>
+            <div className="hidden text-2xs uppercase tracking-[.14em] text-ink-3 sm:block">LV conductor-break protection</div>
           </div>
         </Link>
 
         <div className="hidden h-7 w-px bg-line sm:block" />
 
-        <dl className="flex items-center gap-x-4 gap-y-1 text-xs">
+        <dl className="cc-scroll order-3 flex min-w-0 flex-1 items-center gap-x-3 overflow-x-auto whitespace-nowrap text-xs sm:order-none sm:flex-none sm:gap-x-4 sm:overflow-visible">
           <div className="flex items-baseline gap-1.5">
             <dt className="text-2xs uppercase tracking-[.1em] text-ink-3">Feeder</dt>
-            <dd className="cc-mono font-semibold">{feederId}</dd>
+            <dd className="cc-mono whitespace-nowrap font-semibold">{feederId}</dd>
           </div>
-          <div className="flex items-baseline gap-1.5">
+          <div className="hidden items-baseline gap-1.5 sm:flex">
             <dt className="text-2xs uppercase tracking-[.1em] text-ink-3">Nodes</dt>
             <dd className="cc-mono font-semibold tabular-nums">{order.length}</dd>
           </div>
           <div className="flex items-baseline gap-1.5">
-            <dt className="text-2xs uppercase tracking-[.1em] text-ink-3">Mode</dt>
+            <dt className="whitespace-nowrap text-2xs uppercase tracking-[.1em] text-ink-3">Mode</dt>
             <dd
               className={`cc-mono font-semibold ${mode === 'AUTO' ? 'text-warning' : 'text-ink-2'}`}
               title={
@@ -82,21 +82,29 @@ export default function CommandBar() {
           </div>
         </dl>
 
-        <div className="ml-auto flex items-center gap-2.5">
+        <div className="ml-auto flex items-center gap-2">
           <ThemeToggle compact />
           <span className={`flex items-center gap-1.5 text-2xs font-bold tracking-[.12em] ${link.tone}`} title={link.hint}>
             <Dot className={link.dot} pulse={conn !== 'live'} />
             {link.text}
           </span>
 
-          {/* Demo honesty (README §7): stated up front, never discovered. */}
+        </div>
+
+        {/* Demo honesty (README §7): stated up front, never discovered.
+            Sits on row 2 beside the feeder identity on a phone, so row 1 is
+            just brand + link state. */}
+        <span className="order-3 shrink-0 sm:order-none">
           <span
-            className="rounded border border-line bg-surface-2 px-2 py-1 text-2xs font-semibold text-ink-2"
+            className="whitespace-nowrap rounded border border-line bg-surface-2 px-2 py-1 text-2xs font-semibold text-ink-2"
             title="The feeder is simulated. The consensus engine, arbiter and latency numbers are real code running live."
           >
-            Simulated feeder<span className="mx-1.5 text-ink-3">·</span>live consensus engine
+            <span className="sm:hidden">Simulated</span>
+            <span className="hidden sm:inline">
+              Simulated feeder<span className="mx-1.5 text-ink-3">·</span>live consensus engine
+            </span>
           </span>
-        </div>
+        </span>
       </div>
     </header>
   );

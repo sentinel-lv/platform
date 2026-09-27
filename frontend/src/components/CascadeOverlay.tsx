@@ -54,7 +54,7 @@ export default function CascadeOverlay() {
 
         <button
           onClick={() => setDismiss(true)}
-          className="shrink-0 rounded px-1.5 py-0.5 text-2xs font-semibold text-ink-3 transition hover:bg-surface-3 hover:text-ink-2"
+          className="flex min-h-[34px] shrink-0 items-center rounded px-2 text-2xs font-semibold text-ink-3 transition hover:bg-surface-3 hover:text-ink-2 sm:min-h-0 sm:py-0.5"
           aria-label="Dismiss break banner"
         >
           Dismiss

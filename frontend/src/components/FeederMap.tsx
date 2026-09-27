@@ -336,7 +336,7 @@ export default function FeederMap() {
       <button
         data-testid="arm-add-node"
         onClick={() => { setArming(!arming); setDraft(null); }}
-        className={`absolute left-3 top-3 z-10 rounded border px-2.5 py-1.5 text-xs font-semibold shadow-lift transition ${
+        className={`absolute left-3 top-3 z-10 flex min-h-[40px] items-center rounded border px-3 text-xs font-semibold shadow-lift transition sm:min-h-0 sm:py-1.5 ${
           arming
             ? 'border-accent bg-accent text-white'
             : 'border-line bg-surface-1 text-ink-2 hover:text-ink'

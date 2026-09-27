@@ -123,6 +123,10 @@ body {
   box-shadow: none !important;
 }
 .maplibregl-ctrl-group button + button { border-top: 1px solid var(--cc-line) !important; }
+/* stock zoom buttons are 29px — under any touch-target guideline */
+@media (pointer: coarse) {
+  .maplibregl-ctrl-group button { width: 42px !important; height: 42px !important; }
+}
 .maplibregl-ctrl-group button .maplibregl-ctrl-icon { filter: invert(1) brightness(.85); }
 :root[data-theme='light'] .maplibregl-ctrl-group button .maplibregl-ctrl-icon { filter: none; }
 .maplibregl-ctrl-attrib {

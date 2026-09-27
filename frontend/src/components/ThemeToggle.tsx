@@ -30,11 +30,11 @@ export default function ThemeToggle({ compact = false }: { compact?: boolean }) 
             aria-label={o.label}
             title={o.hint}
             onClick={() => setPref(o.v)}
-            className={`flex items-center gap-1 rounded-full px-2 py-1 text-2xs font-semibold transition ${
+            className={`flex items-center gap-1 rounded-full px-2.5 py-1.5 text-xs font-semibold transition ${
               active ? 'bg-surface-3 text-ink' : 'text-ink-3 hover:text-ink-2'
             }`}
           >
-            <span aria-hidden="true" className="text-[11px] leading-none">{o.glyph}</span>
+            <span aria-hidden="true" className="text-[12px] leading-none">{o.glyph}</span>
             {!compact && <span>{o.label}</span>}
           </button>
         );

@@ -1,3 +1,4 @@
+import ArchitectureDiagram from '../components/ArchitectureDiagram';
 import CascadeFilm from '../components/CascadeFilm';
 import DetectionGap from '../components/DetectionGap';
 import FieldBackdrop from '../components/FieldBackdrop';
@@ -131,17 +132,18 @@ export default function Landing() {
 
           <dl className="mt-14 grid max-w-2xl grid-cols-2 gap-x-8 gap-y-5 sm:grid-cols-4">
             {TARGETS.map((t) => (
-              <div key={t.k}>
-                <dd className="text-xl font-extrabold tracking-tight">{t.v}</dd>
-                <dt className="mt-0.5 text-2xs uppercase tracking-[.1em] text-ink-3">{t.k}</dt>
+              <div key={t.k} className="border-t border-line pt-3">
+                <dd className="text-[26px] font-extrabold leading-none tracking-[-.02em]">{t.v}</dd>
+                <dt className="mt-2 text-[13px] font-medium leading-snug text-ink-2">{t.k}</dt>
                 <dd
-                  className={`mt-1 inline-block rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[.1em] ${
-                    t.proven ? 'bg-good-dim text-good' : 'bg-surface-2 text-ink-3'
+                  className={`mt-2 inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-[.08em] ${
+                    t.proven ? 'text-good' : 'text-ink-3'
                   }`}
                   title={t.proven
                     ? 'Produced by code running in this demo'
                     : 'An engineering target — the hardware to confirm it does not exist yet'}
                 >
+                  <span aria-hidden="true">{t.proven ? '✓' : '○'}</span>
                   {t.proven ? 'measured' : 'target'}
                 </dd>
               </div>
@@ -252,18 +254,7 @@ export default function Landing() {
       >
         <div className="grid gap-4 lg:grid-cols-[1.25fr_1fr]">
           <Reveal>
-            <div className="h-full rounded-panel border border-line bg-surface-1 p-4">
-              <pre className="cc-scroll cc-mono overflow-x-auto text-2xs leading-relaxed text-ink-2">
-{`  nodes ──LoRa mesh gossip──▶  GATEWAY  ──drives the relay──▶  span isolated
-                              feeder head                     < 2 s · local
-                                   │
-                                   │  LTE / MQTT   buffered when offline
-                                   ▼
-                              backend ──WebSocket──▶  operator console
-                              observe · alert · audit · configure
-                              never in the trip path`}
-              </pre>
-            </div>
+            <ArchitectureDiagram />
           </Reveal>
 
           <Reveal delay={90}>

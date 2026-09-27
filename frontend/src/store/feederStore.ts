@@ -15,12 +15,15 @@ interface State {
   scenarioRunning: string | null;
   lastIsolate: FeederEvent | null;
   dismissCascade: boolean;
+  /** node the operator is inspecting; links the map pin and the node card */
+  selectedNode: string | null;
   ingest: (kind: FrameKind, payload: never) => void;
   setGeo: (poles: Pole[], substation: { lat: number; lng: number }, mode: string) => void;
   backfill: (node_id: string, samples: Telemetry[]) => void;
   setConn: (c: State['conn']) => void;
   setScenario: (s: string | null) => void;
   setDismissCascade: (b: boolean) => void;
+  selectNode: (id: string | null) => void;
 }
 
 const HIST_N = 60;
@@ -41,6 +44,7 @@ export const useFeeder = create<State>((set) => ({
   scenarioRunning: null,
   lastIsolate: null,
   dismissCascade: false,
+  selectedNode: null,
   ingest: (kind, payload) => set((st) => {
     if (kind === 'hello') {
       const p = payload as unknown as { nodes: Telemetry[] };
@@ -101,6 +105,7 @@ export const useFeeder = create<State>((set) => ({
   setConn: (conn) => set({ conn }),
   setScenario: (scenarioRunning) => set({ scenarioRunning }),
   setDismissCascade: (dismissCascade) => set({ dismissCascade }),
+  selectNode: (selectedNode) => set({ selectedNode }),
 }));
 
 // Client-side OFFLINE derivation (UI degrades honestly if stream stalls).

@@ -311,25 +311,35 @@ body {
 }
 
 /* ==========================================================================
-   Team page — the cards assemble, then settle.
+   Team page — the cards assemble from off-axis, then settle.
+   Keyframes rather than a class toggle: the grid is remounted on a key, so
+   each run starts these from zero (see Team.tsx).
    ========================================================================== */
+@keyframes tm-assemble {
+  0% {
+    opacity: 0;
+    transform: translate3d(var(--tm-x, 0), 48px, -160px) rotateX(-24deg) rotateY(var(--tm-ry, 0deg)) scale(.9);
+  }
+  55% { opacity: 1; }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 .tm-grid .tm-slot {
-  opacity: 0;
-  transform: translateY(26px) rotateX(-14deg) scale(.96);
-  transition: opacity .55s cubic-bezier(.22,1,.36,1), transform .55s cubic-bezier(.22,1,.36,1);
+  animation: tm-assemble .78s cubic-bezier(.22,1,.36,1) both;
 }
-.tm-grid[data-assembled='true'] .tm-slot {
-  opacity: 1;
-  transform: none;
-}
-/* stagger: each slot waits its turn */
-.tm-grid .tm-slot:nth-child(1) { transition-delay: .00s }
-.tm-grid .tm-slot:nth-child(2) { transition-delay: .09s }
-.tm-grid .tm-slot:nth-child(3) { transition-delay: .18s }
-.tm-grid .tm-slot:nth-child(4) { transition-delay: .27s }
-.tm-grid .tm-slot:nth-child(5) { transition-delay: .36s }
-.tm-grid .tm-slot:nth-child(6) { transition-delay: .45s }
-.tm-grid .tm-slot:nth-child(7) { transition-delay: .54s }
+
+/* Each card arrives from a different direction, so the group reads as pieces
+   converging rather than a list fading in. */
+.tm-grid .tm-slot:nth-child(1) { --tm-x: -56px; --tm-ry:  14deg; animation-delay: .00s }
+.tm-grid .tm-slot:nth-child(2) { --tm-x:  56px; --tm-ry: -14deg; animation-delay: .09s }
+.tm-grid .tm-slot:nth-child(3) { --tm-x: -44px; --tm-ry:  10deg; animation-delay: .18s }
+.tm-grid .tm-slot:nth-child(4) { --tm-x:  44px; --tm-ry: -10deg; animation-delay: .27s }
+.tm-grid .tm-slot:nth-child(5) { --tm-x: -32px; --tm-ry:   8deg; animation-delay: .36s }
+.tm-grid .tm-slot:nth-child(6) { --tm-x:  32px; --tm-ry:  -8deg; animation-delay: .45s }
+.tm-grid .tm-slot:nth-child(7) { --tm-x:    0;  --tm-ry:   0deg; animation-delay: .54s }
 
 .tm-card { transform-style: preserve-3d; will-change: transform; }
 
@@ -338,5 +348,5 @@ body {
 .tm-ring { animation: tm-ring 3.4s ease-in-out infinite; }
 
 @media (prefers-reduced-motion: reduce) {
-  .tm-grid .tm-slot { opacity: 1; transform: none; }
+  .tm-grid .tm-slot { animation: none; }
 }

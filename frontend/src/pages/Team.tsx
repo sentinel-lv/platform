@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { MENTOR, TEAM, TRACK, type Person } from '../data/team';
 import { Link } from '../router';
 
@@ -103,19 +103,16 @@ function Card({ person, index }: { person: Person; index: number }) {
 }
 
 export default function Team() {
-  const [assembled, setAssembled] = useState(false);
-
-  // Kick the assemble animation on mount, and let it be replayed — it is the
-  // point of the page.
-  useEffect(() => {
-    const t = setTimeout(() => setAssembled(true), 40);
-    return () => clearTimeout(t);
-  }, []);
-
-  const replay = () => {
-    setAssembled(false);
-    requestAnimationFrame(() => requestAnimationFrame(() => setAssembled(true)));
-  };
+  /**
+   * Replaying a CSS animation is the fiddly part. Toggling a class off and on
+   * does not work — React 18 batches the two state updates into one commit, so
+   * the browser never sees the "off" frame and nothing restarts.
+   *
+   * Keying the grid on a counter sidesteps it entirely: a new key remounts the
+   * subtree, the elements are genuinely new, and their animations run from the
+   * start every time.
+   */
+  const [runId, setRunId] = useState(0);
 
   return (
     <div className="mx-auto max-w-[1080px] px-5 py-14 md:py-20">
@@ -136,16 +133,14 @@ export default function Team() {
       </p>
 
       <button
-        onClick={replay}
-        className="mt-6 rounded border border-line bg-surface-2 px-3.5 py-1.5 text-xs font-semibold text-ink-2 transition hover:border-accent hover:text-accent"
+        onClick={() => setRunId((n) => n + 1)}
+        className="group mt-6 rounded border border-line bg-surface-2 px-3.5 py-1.5 text-xs font-semibold text-ink-2 transition hover:border-accent hover:text-accent"
       >
-        ⟳ Assemble
+        <span aria-hidden="true" className="inline-block transition-transform duration-500 group-hover:rotate-180">⟳</span>
+        {' '}Assemble
       </button>
 
-      <div
-        data-assembled={assembled}
-        className="tm-grid mt-10 grid gap-4 sm:grid-cols-2"
-      >
+      <div key={runId} className="tm-grid mt-10 grid gap-4 sm:grid-cols-2">
         {TEAM.map((p, i) => (
           <Card key={p.name} person={p} index={i} />
         ))}

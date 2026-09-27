@@ -1,3 +1,5 @@
+import { useEffect, useRef, useState } from 'react';
+import Reveal from '../components/Reveal';
 import { Link } from '../router';
 
 /**
@@ -32,17 +34,41 @@ const BUDGET = [
 ];
 const TOTAL = BUDGET.reduce((a, b) => a + b.ms, 0);
 
-function Section({ title, sub, children }: { title: string; sub?: string; children: React.ReactNode }) {
+function Section({ n, title, sub, children }: { n: string; title: string; sub?: string; children: React.ReactNode }) {
   return (
-    <section className="mt-10">
-      <h2 className="text-lg font-bold tracking-tight">{title}</h2>
-      {sub && <p className="mt-1 max-w-[70ch] text-xs text-ink-2">{sub}</p>}
+    <section className="mt-12">
+      <Reveal>
+        <div className="flex items-baseline gap-3">
+          <span className="cc-mono text-2xs font-bold tabular-nums text-accent">{n}</span>
+          <h2 className="text-lg font-bold tracking-tight">{title}</h2>
+        </div>
+        {sub && <p className="mt-1.5 max-w-[70ch] text-xs leading-relaxed text-ink-2">{sub}</p>}
+      </Reveal>
       <div className="mt-4">{children}</div>
     </section>
   );
 }
 
+/** Bars fill from zero the first time the budget comes into view. */
+function useGrowOnView<T extends HTMLElement>() {
+  const ref = useRef<T>(null);
+  const [grown, setGrown] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+  );
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || grown) return;
+    const io = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { setGrown(true); io.disconnect(); }
+    }, { threshold: 0.3 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [grown]);
+  return [ref, grown] as const;
+}
+
 export default function Evidence() {
+  const [budgetRef, grown] = useGrowOnView<HTMLDivElement>();
   return (
     <div className="mx-auto w-full max-w-[1000px] px-5 py-10">
       <Link to="/" className="text-xs font-semibold text-ink-3 transition hover:text-ink-2">← Back</Link>
@@ -55,27 +81,31 @@ export default function Evidence() {
       </p>
 
       <Section
+        n="01"
         title="The five veto rules"
         sub="The credibility of the project lives here. Each one is a reason the system refuses to act, and each is individually tested."
       >
         <ol className="overflow-hidden rounded-panel border border-line">
           {VETOES.map((v, i) => (
-            <li key={v.n} className={`flex gap-3 bg-surface-1 px-4 py-3 ${i ? 'border-t border-line-soft' : ''}`}>
-              <span className="cc-mono shrink-0 text-sm font-bold text-accent">{v.n}</span>
-              <div>
-                <div className="text-sm font-semibold">{v.t}</div>
-                <p className="mt-0.5 text-xs text-ink-2">{v.d}</p>
-              </div>
-            </li>
+            <Reveal key={v.n} delay={i * 70}>
+              <li className={`flex gap-3 bg-surface-1 px-4 py-3 ${i ? 'border-t border-line-soft' : ''}`}>
+                <span className="cc-mono shrink-0 text-sm font-bold text-accent">{v.n}</span>
+                <div>
+                  <div className="text-sm font-semibold">{v.t}</div>
+                  <p className="mt-0.5 text-xs leading-relaxed text-ink-2">{v.d}</p>
+                </div>
+              </li>
+            </Reveal>
           ))}
         </ol>
       </Section>
 
       <Section
+        n="02"
         title="Shared test vectors"
         sub="Seven fixtures every implementation must pass. Five of the seven assert that nothing happens — that is the interesting half."
       >
-        <div className="overflow-hidden rounded-panel border border-line">
+        <Reveal><div className="overflow-hidden rounded-panel border border-line">
           <table className="w-full text-xs">
             <thead>
               <tr className="bg-surface-2 text-left text-2xs uppercase tracking-[.1em] text-ink-3">
@@ -92,14 +122,15 @@ export default function Evidence() {
               ))}
             </tbody>
           </table>
-        </div>
+        </div></Reveal>
       </Section>
 
       <Section
+        n="03"
         title="Latency budget"
         sub="Measured, not asserted. latency_ms on every event is the real figure from the earliest SUSPECT to command issue; the actuator's own confirmation is logged separately."
       >
-        <div className="overflow-hidden rounded-panel border border-line">
+        <div ref={budgetRef} className="overflow-hidden rounded-panel border border-line">
           {BUDGET.map((b, i) => (
             <div key={b.s} className={`flex items-center gap-3 bg-surface-1 px-4 py-2.5 ${i ? 'border-t border-line-soft' : ''}`}>
               <div className="min-w-0 flex-1">
@@ -107,7 +138,10 @@ export default function Evidence() {
                 <div className="text-2xs text-ink-3">{b.n}</div>
               </div>
               <div className="h-1.5 w-32 shrink-0 overflow-hidden rounded-full bg-accent-dim">
-                <div className="h-full rounded-full bg-accent" style={{ width: `${(b.ms / 2000) * 100}%` }} />
+                <div
+                  className="h-full rounded-full bg-accent transition-[width] duration-[900ms] ease-[cubic-bezier(.22,1,.36,1)]"
+                  style={{ width: grown ? `${(b.ms / 2000) * 100}%` : '0%', transitionDelay: `${i * 130}ms` }}
+                />
               </div>
               <span className="cc-mono w-16 shrink-0 text-right text-xs font-semibold tabular-nums">{b.ms} ms</span>
             </div>
@@ -122,10 +156,11 @@ export default function Evidence() {
       </Section>
 
       <Section
+        n="04"
         title="Where the decision runs"
         sub="The single most important architectural answer, and the one a utility engineer will press on."
       >
-        <div className="rounded-panel border border-line bg-surface-1 p-4">
+        <Reveal><div className="rounded-panel border border-line bg-surface-1 p-4">
           <pre className="cc-scroll cc-mono overflow-x-auto text-2xs leading-relaxed text-ink-2">
 {`  nodes ──LoRa mesh gossip──▶ GATEWAY ──drives the relay──▶ span isolated
                                (feeder head)                 < 2 s, local
@@ -142,7 +177,7 @@ export default function Evidence() {
             waits for a human to arm it. A physical lockout switch overrides all software, because
             linemen have to be able to trust a mechanical interlock.
           </p>
-        </div>
+        </div></Reveal>
       </Section>
 
       <div className="mt-10 flex flex-wrap gap-3">

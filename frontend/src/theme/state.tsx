@@ -14,59 +14,66 @@
 // with hue removed entirely.
 
 import type { NodeState } from '../types/protocol';
-import { TOKENS } from './tokens';
 
 export interface StateStyle {
   label: string;
+  /** css var reference for the state's colour */
   /** one character, rendered in the pin and the badge */
   glyph: string;
   color: string;
   /** tailwind classes for a badge on a dark surface */
   badge: string;
-  /** MapLibre line-dasharray; undefined means solid */
+  /** CSS custom-property reference — SVG resolves this, MapLibre does not */
   dash?: number[];
   /** plain-language meaning, used in tooltips and the legend */
   meaning: string;
+  /** the custom property behind `color`, for consumers that need a literal */
+  varName: string;
 }
 
 export const STATE: Record<NodeState, StateStyle> = {
   NORMAL: {
     label: 'NORMAL',
     glyph: '●',
-    color: TOKENS.good,
+    color: 'var(--cc-good)',
     badge: 'bg-good-dim text-good',
     meaning: 'E-field within adaptive baseline tolerance',
+    varName: '--cc-good',
   },
   SUSPECT: {
     label: 'SUSPECT',
     glyph: '▲',
-    color: TOKENS.warning,
+    color: 'var(--cc-warning)',
     badge: 'bg-warning-dim text-warning',
     dash: [2, 1.2],
     meaning: 'Local collapse detected — awaiting neighbour votes',
+    varName: '--cc-warning',
   },
   CONFIRMED: {
     label: 'CONFIRMED',
     glyph: '✕',
-    color: TOKENS.critical,
+    color: 'var(--cc-critical)',
     badge: 'bg-critical-dim text-critical',
     dash: [1, 0.8],
     meaning: 'Quorum reached — fault asserted',
+    varName: '--cc-critical',
   },
   RECOVERED: {
     label: 'RECOVERED',
     glyph: '✓',
-    color: TOKENS.accent,
+    color: 'var(--cc-accent)',
     badge: 'bg-accent-dim text-accent',
     meaning: 'Field returned before quorum — false alarm rejected',
+    varName: '--cc-accent',
   },
   OFFLINE: {
     label: 'OFFLINE',
     glyph: '○',
-    color: TOKENS.text3,
+    color: 'var(--cc-text-3)',
     badge: 'bg-surface-3 text-ink-3',
     dash: [0.6, 1.6],
     meaning: 'No telemetry for more than 30 s — never a vote toward isolation',
+    varName: '--cc-text-3',
   },
 };
 

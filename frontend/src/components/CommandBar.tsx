@@ -1,4 +1,6 @@
 import { useFeeder } from '../store/feederStore';
+import { Link } from '../router';
+import ThemeToggle from './ThemeToggle';
 import { Dot } from './ui';
 
 const LINK = {
@@ -34,13 +36,25 @@ export default function CommandBar() {
       </div>
 
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 px-4 py-2.5">
-        <div className="flex items-center gap-2">
+        {/* The mark is the way back out of the console. Without it the only
+            exit from a full-screen operator view was the browser's back
+            button. */}
+        <Link
+          to="/"
+          title="Back to the overview"
+          className="group flex items-center gap-2 rounded transition hover:opacity-90"
+        >
           <Mark />
           <div className="leading-tight">
-            <div className="text-sm font-bold tracking-tight">Closed-Circuit</div>
+            <div className="flex items-center gap-1.5 text-sm font-bold tracking-tight">
+              Closed-Circuit
+              <span aria-hidden="true" className="text-2xs font-normal text-ink-3 opacity-0 transition group-hover:opacity-100">
+                ← overview
+              </span>
+            </div>
             <div className="text-2xs uppercase tracking-[.14em] text-ink-3">LV conductor-break protection</div>
           </div>
-        </div>
+        </Link>
 
         <div className="hidden h-7 w-px bg-line sm:block" />
 
@@ -68,7 +82,8 @@ export default function CommandBar() {
           </div>
         </dl>
 
-        <div className="ml-auto flex items-center gap-3">
+        <div className="ml-auto flex items-center gap-2.5">
+          <ThemeToggle compact />
           <span className={`flex items-center gap-1.5 text-2xs font-bold tracking-[.12em] ${link.tone}`} title={link.hint}>
             <Dot className={link.dot} pulse={conn !== 'live'} />
             {link.text}

@@ -2,7 +2,6 @@ import { Area, AreaChart, ReferenceLine, ResponsiveContainer, YAxis } from 'rech
 import type { NodeView } from '../store/feederStore';
 import { isOffline } from '../store/feederStore';
 import { STATE, StateBadge } from '../theme/state';
-import { TOKENS } from '../theme/tokens';
 import { Meter } from './ui';
 
 /** LiFePO4 terminal voltage range from PROTOCOL §4.1. */
@@ -57,7 +56,7 @@ export default function NodeCard({ id, view, selected, onSelect }: {
               </linearGradient>
             </defs>
             <YAxis hide domain={['auto', 'auto']} />
-            <ReferenceLine y={tel.baseline} stroke={TOKENS.text3} strokeDasharray="3 3" strokeWidth={1} />
+            <ReferenceLine y={tel.baseline} stroke="var(--cc-text-3)" strokeDasharray="3 3" strokeWidth={1} />
             <Area
               type="monotone"
               dataKey="v"

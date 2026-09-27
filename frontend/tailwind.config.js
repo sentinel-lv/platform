@@ -22,6 +22,7 @@ export default {
         warning: { DEFAULT: 'var(--cc-warning)', dim: 'var(--cc-warning-dim)' },
         critical: { DEFAULT: 'var(--cc-critical)', dim: 'var(--cc-critical-dim)' },
         accent: { DEFAULT: 'var(--cc-accent)', dim: 'var(--cc-accent-dim)' },
+        cyan: 'var(--cc-cyan)',
       },
       fontFamily: {
         sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],
@@ -29,11 +30,14 @@ export default {
       },
       fontSize: {
         // A deliberately short scale. Operator UIs go wrong by inventing sizes.
-        '2xs': ['10px', { lineHeight: '14px', letterSpacing: '.06em' }],
-        xs: ['11px', { lineHeight: '16px' }],
-        sm: ['13px', { lineHeight: '18px' }],
-        base: ['14px', { lineHeight: '20px' }],
-        lg: ['16px', { lineHeight: '22px' }],
+        // Stepped up ~1px across the board: the original was tuned for a dense
+        // console and read as too small everywhere else, especially on the
+        // marketing pages and on a projector.
+        '2xs': ['11px', { lineHeight: '15px', letterSpacing: '.05em' }],
+        xs: ['12px', { lineHeight: '17px' }],
+        sm: ['14px', { lineHeight: '20px' }],
+        base: ['15px', { lineHeight: '23px' }],
+        lg: ['17px', { lineHeight: '26px' }],
         // hero figure: >=48px, same sans as everything else, exactly one per view
         hero: ['56px', { lineHeight: '1', letterSpacing: '-.03em' }],
         display: ['34px', { lineHeight: '1.05', letterSpacing: '-.02em' }],

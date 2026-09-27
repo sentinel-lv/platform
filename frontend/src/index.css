@@ -39,6 +39,7 @@
   --cc-warning:    #fab219;
   --cc-critical:   #d03b3b;
   --cc-accent:     #3987e5;
+  --cc-cyan:       #2bb8d6;
 
   /* tinted washes for panels/badges that must stay legible on dark */
   --cc-good-dim:     #0ca30c26;
@@ -71,6 +72,7 @@
   --cc-warning:    #fab219;
   --cc-critical:   #d03b3b;
   --cc-accent:     #2a78d6;   /* blue stepped for a light surface */
+  --cc-cyan:       #0d7f99;   /* cyan stepped down for the light surface */
 
   --cc-good-dim:     #0ca30c1f;
   --cc-warning-dim:  #fab2192e;

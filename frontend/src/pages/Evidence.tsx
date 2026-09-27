@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import ArchitectureDiagram from '../components/ArchitectureDiagram';
 import Reveal from '../components/Reveal';
 import { Link } from '../router';
 
@@ -160,24 +161,17 @@ export default function Evidence() {
         title="Where the decision runs"
         sub="The single most important architectural answer, and the one a utility engineer will press on."
       >
-        <Reveal><div className="rounded-panel border border-line bg-surface-1 p-4">
-          <pre className="cc-scroll cc-mono overflow-x-auto text-2xs leading-relaxed text-ink-2">
-{`  nodes ──LoRa mesh gossip──▶ GATEWAY ──drives the relay──▶ span isolated
-                               (feeder head)                 < 2 s, local
-                                   │
-                                   │ LTE / MQTT  (buffered when offline)
-                                   ▼
-                              backend ──WS──▶ this dashboard
-                              observe · alert · audit · configure
-                              NEVER in the trip path`}
-          </pre>
+        <Reveal>
+          <ArchitectureDiagram />
+          <div className="mt-3 rounded-panel border border-line bg-surface-1 p-4">
           <p className="mt-3 text-xs text-ink-2">
             If the radio fails, the gateway raises an alarm and does not trip. If LTE fails, it keeps
             operating and buffers the uplink. If its watchdog resets it, it comes up in LOCKOUT and
             waits for a human to arm it. A physical lockout switch overrides all software, because
             linemen have to be able to trust a mechanical interlock.
           </p>
-        </div></Reveal>
+          </div>
+        </Reveal>
       </Section>
 
       <div className="mt-10 flex flex-wrap gap-3">

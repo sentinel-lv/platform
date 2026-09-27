@@ -46,7 +46,7 @@ export function Btn({
   return (
     <button
       {...rest}
-      className={`rounded px-2.5 py-1.5 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-40 ${BTN[variant]} ${className}`}
+      className={`min-h-[40px] rounded px-3 py-2 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-40 sm:min-h-0 sm:px-2.5 sm:py-1.5 ${BTN[variant]} ${className}`}
     >
       {children}
     </button>
@@ -98,7 +98,7 @@ export function Stat({
   }[tone];
   return (
     <div
-      className="flex min-w-0 flex-col justify-center gap-0.5 border-line px-3.5 py-2 sm:border-r sm:last:border-r-0"
+      className="flex shrink-0 snap-start flex-col justify-center gap-0.5 border-line px-3.5 py-2 sm:min-w-0 sm:shrink sm:border-r sm:last:border-r-0"
       title={hint}
     >
       <div className="truncate text-2xs font-semibold uppercase tracking-[.12em] text-ink-3">{label}</div>

@@ -30,7 +30,7 @@ export default function ThemeToggle({ compact = false }: { compact?: boolean }) 
             aria-label={o.label}
             title={o.hint}
             onClick={() => setPref(o.v)}
-            className={`flex items-center gap-1 rounded-full px-2.5 py-1.5 text-xs font-semibold transition ${
+            className={`flex min-h-[38px] items-center gap-1 rounded-full px-3 py-2 text-xs font-semibold transition sm:min-h-0 sm:py-1.5 ${
               active ? 'bg-surface-3 text-ink' : 'text-ink-3 hover:text-ink-2'
             }`}
           >

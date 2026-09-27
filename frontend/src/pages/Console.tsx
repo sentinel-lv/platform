@@ -11,15 +11,17 @@ import CrewAlertMock from '../components/CrewAlertMock';
 import ThresholdTuner from '../components/ThresholdTuner';
 import AuditLog from '../components/AuditLog';
 import BootScreen from '../components/BootScreen';
+import { useIsDesktop } from '../hooks/useMedia';
 import { useFeeder } from '../store/feederStore';
 import { Btn } from '../components/ui';
 
-type Drawer = 'crew' | 'tuning' | 'audit' | null;
+type Drawer = 'crew' | 'tuning' | 'audit' | 'scenarios' | null;
 
 const DRAWER_LABEL: Record<Exclude<Drawer, null>, string> = {
   crew: 'Crew alert mock',
   tuning: 'Threshold tuning',
   audit: 'Audit log',
+  scenarios: 'Scenarios',
 };
 
 export default function Console() {
@@ -28,6 +30,9 @@ export default function Console() {
   // for several seconds, so the wait gets the boot animation rather than an
   // empty grid of panels.
   const booting = useFeeder((s) => s.order.length === 0);
+  // A render decision, not a CSS one: two copies of ScenarioPanel in the DOM
+  // duplicated every data-testid and mounted the panel twice.
+  const isDesktop = useIsDesktop();
   const toggle = (d: Exclude<Drawer, null>) => setDrawer((cur) => (cur === d ? null : d));
 
   // Escape closes the sheet — it covers the stage, so there must be a way out
@@ -62,7 +67,7 @@ export default function Console() {
               only resolves inside a fixed-height flex parent; in the mobile
               stack (which scrolls) the map collapsed and the rail below it
               painted over the canvas. */}
-          <div className="relative h-[54vh] shrink-0 lg:h-auto lg:min-h-0 lg:flex-1">
+          <div className="relative h-[46vh] shrink-0 lg:h-auto lg:min-h-0 lg:flex-1">
             <FeederMap />
             <CascadeOverlay />
             <NodeInspector />
@@ -74,8 +79,11 @@ export default function Console() {
             positioned, so it paints above any statically-positioned sibling
             that follows it. In the mobile stack that put the whole rail
             underneath the map. */}
-        <aside className="cc-scroll relative z-[1] flex min-h-0 flex-col gap-2.5 lg:overflow-y-auto">
-          <ScenarioPanel />
+        <aside className="cc-scroll relative z-[1] flex min-h-0 flex-col gap-2.5 pb-16 lg:overflow-y-auto lg:pb-0">
+          {/* Below lg the scenarios live in a bottom sheet instead — the
+              frontend brief's own mobile design, and the only way the primary
+              demo control is reachable without scrolling past the map. */}
+          {isDesktop && <ScenarioPanel />}
           <NodePanel />
 
           <nav className="grid shrink-0 grid-cols-3 gap-1.5" aria-label="Secondary views">
@@ -87,6 +95,20 @@ export default function Console() {
       </main>
 
       </>
+      )}
+
+      {/* Mobile action bar: the one control a judge actually presses. */}
+      {!booting && !isDesktop && (
+        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface-1/97 px-3 py-2 backdrop-blur">
+          <Btn
+            variant="primary"
+            className="w-full"
+            onClick={() => toggle('scenarios')}
+            aria-expanded={drawer === 'scenarios'}
+          >
+            Run a scenario
+          </Btn>
+        </div>
       )}
 
       {/* An overlay sheet, not a flex sibling. As a sibling it stole its height
@@ -117,6 +139,7 @@ export default function Console() {
                   Close <span aria-hidden="true" className="text-ink-3">esc</span>
                 </button>
               </div>
+              {drawer === 'scenarios' && <ScenarioPanel bare />}
               {drawer === 'crew' && <CrewAlertMock />}
               {drawer === 'tuning' && <ThresholdTuner />}
               {drawer === 'audit' && <AuditLog />}

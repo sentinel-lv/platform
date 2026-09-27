@@ -37,7 +37,7 @@ function LatencyHero() {
 
   return (
     <div
-      className={`flex w-full flex-col justify-center gap-1 border-b border-line px-4 py-2 transition-colors sm:w-auto sm:min-w-[240px] sm:border-b-0 sm:border-r ${
+      className={`flex w-full flex-col justify-center gap-0.5 border-b border-line px-3 py-1.5 transition-colors sm:w-auto sm:min-w-[240px] sm:gap-1 sm:border-b-0 sm:border-r sm:px-4 sm:py-2 ${
         flash ? 'bg-critical-dim' : ''
       }`}
     >
@@ -54,7 +54,7 @@ function LatencyHero() {
             ––
           </span>
         ) : (
-          <span data-testid="hero-latency" className="text-hero font-extrabold">
+          <span data-testid="hero-latency" className="text-[40px] font-extrabold leading-none sm:text-hero">
             {ms}
           </span>
         )}
@@ -109,8 +109,9 @@ export default function KpiStrip() {
     <div className="shrink-0 border-b border-line bg-surface-1">
       <div className="flex flex-wrap items-stretch">
         <LatencyHero />
-        {/* two-up on phones so the tiles do not each claim a full row */}
-        <div className="grid w-full grid-cols-2 sm:flex sm:w-auto sm:flex-1 sm:flex-wrap">
+        {/* One scrollable row on a phone. A 2x2 grid here pushed the map
+            below the fold before the operator had seen anything. */}
+        <div className="cc-scroll flex w-full snap-x overflow-x-auto sm:w-auto sm:flex-1 sm:flex-wrap sm:overflow-visible">
 
         <Stat
           label="Feeder health"

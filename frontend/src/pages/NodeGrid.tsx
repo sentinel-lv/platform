@@ -63,7 +63,7 @@ export default function NodeGrid() {
       <CommandBar />
 
       <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-line bg-surface-1 px-3 py-2">
-        <Link to="/console" className="text-xs font-semibold text-ink-3 transition hover:text-ink-2">
+        <Link to="/console" className="flex min-h-[36px] items-center text-xs font-semibold text-ink-3 transition hover:text-ink-2 sm:min-h-0">
           ← Console
         </Link>
         <span className="h-4 w-px bg-line" />
@@ -75,7 +75,7 @@ export default function NodeGrid() {
         <div className="ml-auto flex flex-wrap items-center gap-1">
           <button
             onClick={() => setFilter('all')}
-            className={`rounded-full px-2.5 py-1 text-2xs font-semibold transition ${
+            className={`flex min-h-[34px] items-center rounded-full px-3 text-2xs font-semibold transition sm:min-h-0 sm:py-1 ${
               filter === 'all' ? 'bg-surface-3 text-ink' : 'text-ink-3 hover:text-ink-2'
             }`}
           >
@@ -86,7 +86,7 @@ export default function NodeGrid() {
               key={s}
               onClick={() => setFilter(filter === s ? 'all' : s)}
               title={STATE[s].meaning}
-              className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-2xs font-semibold transition ${
+              className={`flex min-h-[34px] items-center gap-1 rounded-full px-3 text-2xs font-semibold transition sm:min-h-0 sm:py-1 ${
                 filter === s ? 'bg-surface-3 text-ink' : 'text-ink-3 hover:text-ink-2'
               }`}
             >

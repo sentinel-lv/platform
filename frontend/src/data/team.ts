@@ -18,7 +18,7 @@ export interface Person {
 }
 
 export const TRACK: Record<TrackKey, { label: string; accent: string; remit: string }> = {
-  lead:      { label: 'Team lead',  accent: 'var(--cc-accent)',   remit: 'Integration, the contract, and the demo script' },
+  lead:      { label: 'Lead · Full stack', accent: 'var(--cc-accent)',   remit: 'Backend and frontend, the frozen contract, integration, the demo' },
   hardware:  { label: 'Hardware',   accent: 'var(--cc-warning)',  remit: 'Probe, analog front end, power, enclosure' },
   firmware:  { label: 'Firmware',   accent: 'var(--cc-good)',     remit: 'Sampling, the detector state machine, LoRa mesh' },
   gateway:   { label: 'Gateway',    accent: 'var(--cc-critical)', remit: 'The only safety-critical path: decide, then actuate' },
@@ -31,26 +31,36 @@ export const TEAM: Person[] = [
   {
     name: 'Pranav Shukla',
     track: 'lead',
-    owns: 'Holds the frozen contract, wires the tracks together, runs the demo.',
+    owns: 'Owns decide() and the frozen contract — and is the one who has to say no when somebody wants to change it quietly. Integration, the demo, the pitch.',
     href: 'https://pranavmshukla.in',
     handle: 'pranavmshukla.in',
   },
   {
+    name: 'Md Danish',
+    track: 'hardware',
+    owns: 'The critical path. A sub-picofarad signal off a plate in the air, and a PCB that has to be ordered before the design feels finished.',
+    href: 'https://github.com/danish9661',
+    handle: '@danish9661',
+  },
+  {
     name: 'Abhishek',
-    track: 'backend',
-    owns: 'Owns decide() — the one function the gateway and the firmware both re-implement.',
+    track: 'firmware',
+    owns: 'Turns a field collapse into a SUSPECT assertion and gets it on the radio in time — on a baseline that must never adapt fast enough to forget a fault.',
   },
   {
     name: 'Arnav Sharma',
-    track: 'firmware',
-    owns: 'Turns a field collapse into a SUSPECT assertion, and gets it on the radio in time.',
+    track: 'gateway',
+    owns: 'The trip path: seven fail-safe rules, a relay that has to be right, and no auto-reclose, ever.',
   },
   {
-    name: 'Danish',
-    track: 'gateway',
-    owns: 'The trip path. Seven fail-safe rules, and a relay that has to be right.',
-    href: 'https://github.com/danish9661',
-    handle: '@danish9661',
+    name: 'Shaik Suhail',
+    track: 'simulator',
+    owns: 'The substation outage, the monsoon burst and the lightning transient you cannot make happen on a bench — which is how the arbiter got tested against them.',
+  },
+  {
+    name: 'Shristy',
+    track: 'frontend',
+    owns: 'The only part of this a judge ever sees. Twelve live traces, a map that reads at a glance, and a latency number that is never faked.',
   },
 ];
 

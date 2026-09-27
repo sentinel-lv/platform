@@ -9,7 +9,7 @@ Derived strictly from `README.pdf` (overview), `README (1)–(8).pdf` (six track
 |--------|--------|-----------|
 | Detection → isolation | < 2 s | `latency_ms` on every event + gateway relay-click measurement (M4) |
 | False trip rate | 0 in bench set | 7 vectors green in Python + C, rain/vegetation/outage never ISOLATE |
-| Node BOM | < ₹1,800 | `hardware/BOM.csv` (proto + 1k-unit projection) |
+| Node BOM | target only, **unverified** | `hardware/BOM.csv` — enclosure row unpriced, so no figure is quotable yet |
 | Node avg current | < 5 mA | metered with firmware running; solar + LiFePO4, 5-day monsoon autonomy |
 | Inter-node range | ≥ 300 m LOS | field measurement, SF9/BW125/CR4-5 start, adjust for airtime |
 
@@ -17,16 +17,22 @@ Architecture: probe → node → LoRa mesh quorum → **gateway decides + drives
 
 ## 1. Ownership (README §5 — fill TBD now)
 
-| Track | Dir | Owner | Critical note |
-|-------|-----|-------|---------------|
-| Hardware / AFE | `hardware/` | TBD | STARTS TODAY — PCB 12–18 d is the critical path; order 2 revs of parts |
-| Firmware / mesh | `firmware/` | TBD | Dev boards (STM32L4 Nucleo or ESP32-S3 + SX1262) until PCB arrives |
-| Gateway / actuation | `gateway/` | TBD | Safety-critical trip path |
-| Simulator | `simulator/` | TBD | Unblocks backend+frontend day 1 |
-| Backend | `backend/` | TBD | Owns `decide()` reused by gateway |
-| Frontend | `frontend/` | TBD | Owns the demo (judges only see this) |
+| Track | Repo / dir | Owner | Critical note |
+|-------|-----------|-------|---------------|
+| Hardware / AFE | `hardware` | **Md Danish** | STARTS TODAY — PCB 12–18 d is the critical path; order 2 revs of parts |
+| Firmware / mesh | `edge/firmware/` | **Abhishek** | Dev boards (STM32L4 Nucleo or ESP32-S3 + SX1262) until PCB arrives |
+| Gateway / actuation | `edge/gateway/` | **Arnav Sharma** | Safety-critical trip path |
+| Simulator | `platform/simulator/` | **Shaik Suhail** | Unblocks backend+frontend day 1 |
+| Backend | `platform/backend/` | **Pranav Shukla** | Owns `decide()` reused by gateway |
+| Frontend | `platform/frontend/` | **Pranav Shukla** | Owns the demo (judges only see this) |
 
-Lead Pranav — integration, PPT, demo script, PROTOCOL ownership.
+Lead **Pranav Shukla** — full stack (backend + frontend), integration, PPT, demo
+script, PROTOCOL ownership. Mentor: Dr. Abha Trivedi, SCAI, VIT Bhopal University.
+
+One consequence of the lead also owning both software tracks: CONTRIBUTING's
+"reviewer must be from a different track" rule needs care here. Backend and
+frontend PRs should go to an edge- or hardware-track owner for review, precisely
+because that is the pairing most likely to catch contract drift.
 
 ## 2. Milestones M0–M6 (README §6)
 

@@ -124,7 +124,7 @@ export default function Team() {
       </p>
 
       <h1 className="mt-3 max-w-[16ch] text-[38px] font-extrabold leading-[1.04] tracking-[-.035em] md:text-[58px]">
-        Six tracks,<br />
+        Six people,<br />
         <span className="text-accent">one frozen contract.</span>
       </h1>
 

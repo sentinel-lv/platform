@@ -20,7 +20,7 @@ When a conductor breaks, the E-field downstream of the break collapses. A single
 |--------|--------|
 | Detection to isolation | < 2 s |
 | False trip rate | 0 in bench characterisation set |
-| Node BOM cost | < ₹1,800 |
+| Node BOM cost | target only — **not yet verified** (see `hardware/BOM.csv`; the enclosure row is unpriced, so the figure is not quotable) |
 | Node average current | < 5 mA (solar + LiFePO4, no mains) |
 | Inter-node range | ≥ 300 m LoRa, line of sight along span |
 
@@ -76,12 +76,12 @@ Six people, six tracks. Fill in the names.
 
 | Track | Directory | Owner | Notes |
 |-------|-----------|-------|-------|
-| Hardware / AFE | `hardware/` | TBD | Starts today. PCB lead time is the critical path. |
-| Firmware / mesh | `firmware/` | TBD | Works on dev boards until PCB arrives. |
-| Gateway / actuation | `gateway/` | TBD | Owns the safety-critical trip path. |
-| Simulator | `simulator/` | TBD | Unblocks backend + frontend on day 1. |
-| Backend | `backend/` | TBD | Owns `decide()`, which the gateway later reuses. |
-| Frontend | `frontend/` | TBD | Owns the demo. |
+| Hardware / AFE | `hardware` | **Md Danish** | Starts today. PCB lead time is the critical path. |
+| Firmware / mesh | `edge/firmware/` | **Abhishek** | Works on dev boards until PCB arrives. |
+| Gateway / actuation | `edge/gateway/` | **Arnav Sharma** | Owns the safety-critical trip path. |
+| Simulator | `platform/simulator/` | **Shaik Suhail** | Unblocks backend + frontend on day 1. |
+| Backend | `platform/backend/` | **Pranav Shukla** | Owns `decide()`, which the gateway later reuses. |
+| Frontend | `platform/frontend/` | **Pranav Shukla** | Owns the demo. |
 
 Pranav (team lead) — integration, PPT, demo script, PROTOCOL ownership.
 

@@ -37,7 +37,7 @@ function LatencyHero() {
 
   return (
     <div
-      className={`flex min-w-[240px] flex-col justify-center gap-1 border-r border-line px-4 py-2 transition-colors ${
+      className={`flex w-full flex-col justify-center gap-1 border-b border-line px-4 py-2 transition-colors sm:w-auto sm:min-w-[240px] sm:border-b-0 sm:border-r ${
         flash ? 'bg-critical-dim' : ''
       }`}
     >
@@ -107,8 +107,10 @@ export default function KpiStrip() {
 
   return (
     <div className="shrink-0 border-b border-line bg-surface-1">
-      <div className="flex flex-wrap items-stretch divide-line">
+      <div className="flex flex-wrap items-stretch">
         <LatencyHero />
+        {/* two-up on phones so the tiles do not each claim a full row */}
+        <div className="grid w-full grid-cols-2 sm:flex sm:w-auto sm:flex-1 sm:flex-wrap">
 
         <Stat
           label="Feeder health"
@@ -138,6 +140,7 @@ export default function KpiStrip() {
           mono={false}
           hint="The isolation decision executes on the gateway at the feeder head, never in the cloud. This dashboard observes and audits."
         />
+        </div>
       </div>
     </div>
   );

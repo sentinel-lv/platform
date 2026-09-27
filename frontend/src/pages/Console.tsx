@@ -25,15 +25,27 @@ export default function Console() {
       {/* lg: the map is the star and the rail sits beside it.
           below lg: everything stacks and the page scrolls normally. */}
       <main className="flex min-h-0 flex-1 flex-col gap-2.5 overflow-y-auto p-2.5 lg:grid lg:grid-cols-[minmax(0,1fr)_368px] lg:overflow-hidden">
-        <div className="flex min-h-0 flex-col gap-2.5">
-          <div className="relative min-h-[340px] flex-1 lg:min-h-0">
+        {/* shrink-0 on mobile: this column's children have fixed heights, so
+            letting the column itself shrink made them overflow its box and
+            collide with the rail below. At lg the column is a real flex child
+            of a fixed-height grid row and shrinks normally. */}
+        <div className="flex min-h-0 shrink-0 flex-col gap-2.5 lg:shrink">
+          {/* Mobile gets an explicit viewport-relative height. `flex-1` + `h-full`
+              only resolves inside a fixed-height flex parent; in the mobile
+              stack (which scrolls) the map collapsed and the rail below it
+              painted over the canvas. */}
+          <div className="relative h-[54vh] shrink-0 lg:h-auto lg:min-h-0 lg:flex-1">
             <FeederMap />
             <CascadeOverlay />
           </div>
           <EventTimeline />
         </div>
 
-        <aside className="cc-scroll flex min-h-0 flex-col gap-2.5 lg:overflow-y-auto">
+        {/* `relative` is load-bearing: MapLibre's canvas is absolutely
+            positioned, so it paints above any statically-positioned sibling
+            that follows it. In the mobile stack that put the whole rail
+            underneath the map. */}
+        <aside className="cc-scroll relative z-[1] flex min-h-0 flex-col gap-2.5 lg:overflow-y-auto">
           <ScenarioPanel />
           <NodePanel />
 

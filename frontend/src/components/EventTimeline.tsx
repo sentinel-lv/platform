@@ -35,7 +35,7 @@ export default function EventTimeline() {
     <Panel
       title="Event timeline"
       right={<span className="cc-mono text-2xs tabular-nums text-ink-3">{events.length} events</span>}
-      className="h-[218px] shrink-0"
+      className="relative z-[1] h-[218px] shrink-0"
       dense
       bodyClassName="flex flex-col"
     >

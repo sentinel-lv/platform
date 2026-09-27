@@ -8,9 +8,9 @@ import { useEffect, useState } from 'react';
  * any static host with zero rewrite rules, so a Vercel deploy cannot 404 on a
  * deep link the night before a demo.
  */
-export type Route = '/' | '/console' | '/evidence';
+export type Route = '/' | '/console' | '/evidence' | '/nodes';
 
-const ROUTES: Route[] = ['/', '/console', '/evidence'];
+const ROUTES: Route[] = ['/', '/console', '/evidence', '/nodes'];
 
 function read(): Route {
   const raw = window.location.hash.replace(/^#/, '') || '/';

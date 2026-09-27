@@ -35,6 +35,17 @@ def commission_node(node_id, lat, lng, span_m=42, after=None) -> dict:
     st.set_order(geo.order())
     return node
 
+def update_node(node_id, **fields) -> dict:
+    """Patch node metadata, keeping the simulator's geometry in lockstep."""
+    node = geo.update_node(node_id, **fields)
+    if sim_feeder is not None and node_id in getattr(sim_feeder, "by_id", {}):
+        sn = sim_feeder.by_id[node_id]
+        for k in ("lat", "lng", "span_m"):
+            if k in fields and fields[k] is not None and hasattr(sn, k):
+                setattr(sn, k, float(fields[k]))
+    return node
+
+
 def decommission_node(node_id) -> None:
     geo.remove_node(node_id)
     if sim_feeder is not None and node_id in sim_feeder.by_id:

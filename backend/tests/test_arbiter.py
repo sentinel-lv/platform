@@ -1,9 +1,21 @@
-"""Runs every vector in docs/vectors/ (backend README Phase 1-2)."""
+"""Runs every shared vector against decide() (backend README Phase 1-2).
+
+The vectors live in the `protocol` repo, which is a git submodule here — one
+frozen contract, one set of fixtures, shared with `edge` so the C port is held
+to exactly the same cases. The legacy `docs/vectors/` path is still accepted
+because that is where they lived before the repo split.
+"""
 import json, pathlib, sys
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 from app.arbiter import ArbiterConfig, NodeState, decide
 
-VECTORS = pathlib.Path(__file__).resolve().parents[2] / "docs" / "vectors"
+_ROOT = pathlib.Path(__file__).resolve().parents[2]
+_CANDIDATES = [
+    _ROOT / "protocol" / "vectors",       # submodule (current layout)
+    _ROOT.parent / "protocol" / "vectors",  # sibling checkout of the org repos
+    _ROOT / "docs" / "vectors",           # pre-split layout
+]
+VECTORS = next((p for p in _CANDIDATES if p.is_dir()), _CANDIDATES[0])
 
 def _load(name):
     return json.loads((VECTORS / name).read_text())
@@ -16,7 +28,11 @@ def _run(vec):
 
 def test_vectors_exist():
     files = sorted(VECTORS.glob("*.json"))
-    assert len(files) >= 7, f"expected >=7 vectors, got {len(files)}"
+    assert len(files) >= 7, (
+        f"expected >=7 vectors, got {len(files)} in {VECTORS}. "
+        "If this is a fresh clone, the protocol submodule is not checked out: "
+        "run `git submodule update --init`."
+    )
 
 def test_all_vectors():
     for f in sorted(VECTORS.glob("*.json")):

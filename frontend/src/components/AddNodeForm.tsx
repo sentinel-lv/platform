@@ -49,7 +49,7 @@ export default function AddNodeForm({ lat, lng, onDone }: { lat: number; lng: nu
   return (
     <div
       data-testid="add-node-form"
-      className="cc-rise absolute left-3 top-14 z-20 w-64 rounded-panel border border-line bg-surface-1/97 p-3 shadow-lift backdrop-blur"
+      className="cc-rise absolute left-3 top-14 z-20 w-64 rounded-panel border border-line bg-surface-1 p-3 shadow-lift"
     >
       <div className="text-2xs font-bold uppercase tracking-[.14em] text-ink-3">Commission node</div>
       <div className="cc-mono mt-1 text-2xs tabular-nums text-ink-3">{lat.toFixed(5)}, {lng.toFixed(5)}</div>

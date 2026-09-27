@@ -4,6 +4,7 @@ import { connectStream } from './api/socket';
 import { useFeeder } from './store/feederStore';
 import { MOCK_NODES } from './mocks/fixtures';
 import { useRoute } from './router';
+import BootScreen from './components/BootScreen';
 import SiteNav from './components/SiteNav';
 import Landing from './pages/Landing';
 import Evidence from './pages/Evidence';
@@ -16,6 +17,7 @@ import Evidence from './pages/Evidence';
  * console links, so the navigation itself still feels instant.
  */
 const Console = lazy(() => import('./pages/Console'));
+const NodeGrid = lazy(() => import('./pages/NodeGrid'));
 
 /**
  * The feeder connection is opened here, above the router, on purpose.
@@ -68,26 +70,14 @@ function useFeederConnection() {
   }, [feederId, ingest, setGeo, setConn]);
 }
 
-/** Shown for the moment the console chunk is in flight. */
-function ConsoleBooting() {
-  return (
-    <div className="flex h-full flex-col items-center justify-center gap-3 bg-bg text-ink-3">
-      <div className="h-1 w-40 overflow-hidden rounded-full bg-surface-3">
-        <div className="cc-sweep relative h-full w-full" />
-      </div>
-      <p className="text-xs">Connecting to feeder…</p>
-    </div>
-  );
-}
-
 export default function App() {
   const route = useRoute();
   useFeederConnection();
 
-  if (route === '/console') {
+  if (route === '/console' || route === '/nodes') {
     return (
-      <Suspense fallback={<ConsoleBooting />}>
-        <Console />
+      <Suspense fallback={<BootScreen />}>
+        {route === '/nodes' ? <NodeGrid /> : <Console />}
       </Suspense>
     );
   }

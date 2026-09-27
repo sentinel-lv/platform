@@ -5,7 +5,8 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import { useFeeder } from '../store/feederStore';
 import type { NodeState } from '../types/protocol';
 import { STATE, STATE_ORDER } from '../theme/state';
-import { TOKENS } from '../theme/tokens';
+import { cssVar } from '../theme/theme';
+import { useThemeCtx } from '../theme/ThemeContext';
 import AddNodeForm from './AddNodeForm';
 
 /**
@@ -46,7 +47,7 @@ function ensureSpanLayers(map: maplibregl.Map) {
       type: 'line',
       source: 'span',
       layout: { 'line-cap': 'round', 'line-join': 'round' },
-      paint: { 'line-width': 8, 'line-color': TOKENS.bg, 'line-opacity': 0.85 },
+      paint: { 'line-width': 8, 'line-color': cssVar('--cc-bg', '#121211'), 'line-opacity': 0.85 },
     });
 
     for (const s of STATE_ORDER) {
@@ -59,7 +60,7 @@ function ensureSpanLayers(map: maplibregl.Map) {
         layout: { 'line-cap': style.dash ? 'butt' : 'round', 'line-join': 'round' },
         paint: {
           'line-width': s === 'CONFIRMED' ? 5 : 3.5,
-          'line-color': style.color,
+          'line-color': cssVar(style.varName, '#888'),
           ...(style.dash ? { 'line-dasharray': style.dash } : {}),
         },
       });
@@ -67,6 +68,27 @@ function ensureSpanLayers(map: maplibregl.Map) {
   };
   if (map.isStyleLoaded()) add();
   else map.once('load', add);
+}
+
+/**
+ * Dark themes need the tiles pulled down to near-black so the feeder is the
+ * brightest thing on screen. Light themes want them left almost alone — just
+ * desaturated, so the status hues stay the only colour in the frame.
+ */
+function rasterPaint(theme: 'dark' | 'light'): Record<string, number> {
+  return theme === 'dark'
+    ? {
+        'raster-saturation': -0.8,
+        'raster-brightness-max': 0.19,
+        'raster-contrast': 0.34,
+        'raster-opacity': 0.85,
+      }
+    : {
+        'raster-saturation': -0.62,
+        'raster-brightness-min': 0.12,
+        'raster-contrast': 0.05,
+        'raster-opacity': 0.92,
+      };
 }
 
 function pinHtml(id: string, state: NodeState, selected: boolean) {
@@ -97,6 +119,11 @@ export default function FeederMap() {
    * this, so they all re-run against the new instance.
    */
   const [mapEpoch, setMapEpoch] = useState(0);
+  const { resolved } = useThemeCtx();
+  // read inside the map-init effect without making it a dependency (a theme
+  // change must restyle the map, never rebuild it)
+  const resolvedRef = useRef(resolved);
+  resolvedRef.current = resolved;
 
   // click-to-place commissioning: arm, click the pole position, confirm
   useEffect(() => {
@@ -125,12 +152,7 @@ export default function FeederMap() {
             id: 'base',
             type: 'raster',
             source: 'base',
-            paint: {
-              'raster-saturation': -0.8,     // lose the postcard colour
-              'raster-brightness-max': 0.19,  // pull white paper down to near-black
-              'raster-contrast': 0.34,        // put back the road/land separation that costs
-              'raster-opacity': 0.85,
-            },
+            paint: rasterPaint(resolvedRef.current),
           },
         ],
       },
@@ -171,8 +193,8 @@ export default function FeederMap() {
       el.title = 'Substation / feeder head — the gateway lives here';
       el.style.cssText =
         `display:grid;place-items:center;width:26px;height:26px;border-radius:6px;` +
-        `background:${TOKENS.surface2};border:2px solid ${TOKENS.accent};` +
-        `color:${TOKENS.accent};font:700 12px/1 Inter,sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.6)`;
+        `background:var(--cc-surface-2);border:2px solid var(--cc-accent);` +
+        `color:var(--cc-accent);font:700 12px/1 Inter,sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.35)`;
       el.textContent = 'GW';
       subMarker.current = new maplibregl.Marker({ element: el }).setLngLat([substation.lng, substation.lat]).addTo(map);
     } else {
@@ -216,6 +238,28 @@ export default function FeederMap() {
     map.fitBounds(bounds, { padding: 56, maxZoom: 16 });
     ensureSpanLayers(map);
   }, [poles, substation, selectNode, mapEpoch]);
+
+  // Repaint for the theme in place. Rebuilding the map would refetch every
+  // tile and lose the viewport the operator had panned to.
+  useEffect(() => {
+    const map = mapObj.current;
+    if (!map) return;
+    const apply = () => {
+      if (!map.getLayer('base')) return;
+      const paint = rasterPaint(resolved);
+      for (const [k, v] of Object.entries(paint)) map.setPaintProperty('base', k, v);
+      if (map.getLayer('span-casing')) {
+        map.setPaintProperty('span-casing', 'line-color', cssVar('--cc-bg', '#121211'));
+      }
+      for (const s of STATE_ORDER) {
+        if (map.getLayer(`span-${s}`)) {
+          map.setPaintProperty(`span-${s}`, 'line-color', cssVar(STATE[s].varName, '#888'));
+        }
+      }
+    };
+    if (map.isStyleLoaded()) apply();
+    else map.once('load', apply);
+  }, [resolved, mapEpoch]);
 
   // re-evaluate staleness on a ticker so OFFLINE appears without new frames
   const [tick, setTick] = useState(0);
@@ -261,13 +305,13 @@ export default function FeederMap() {
       pin.textContent = p.glyph;
       wrap.title = p.title;
       pin.dataset.alarm = String(st === 'CONFIRMED');
-      pin.style.borderColor = p.selected ? TOKENS.text : 'rgba(255,255,255,.92)';
+      pin.style.borderColor = p.selected ? 'var(--cc-text)' : 'var(--cc-surface-1)';
       // scale the inner pin only; the wrapper's transform belongs to MapLibre
       pin.style.scale = p.selected ? '1.25' : '1';
       wrap.style.zIndex = p.selected ? '5' : '';
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nodes, tick, selected, mapEpoch]);
+  }, [nodes, tick, selected, mapEpoch, resolved]);
 
   return (
     <div className="relative h-full w-full overflow-hidden rounded-panel border border-line bg-surface-1">
@@ -279,7 +323,7 @@ export default function FeederMap() {
         className={`absolute left-3 top-3 z-10 rounded border px-2.5 py-1.5 text-xs font-semibold shadow-lift transition ${
           arming
             ? 'border-accent bg-accent text-white'
-            : 'border-line bg-surface-1/95 text-ink-2 backdrop-blur hover:text-ink'
+            : 'border-line bg-surface-1 text-ink-2 hover:text-ink'
         }`}
         title="Commission a new sentinel node: arm, then click the pole position on the map"
       >

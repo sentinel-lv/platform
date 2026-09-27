@@ -5,10 +5,13 @@ import FeederMap from '../components/FeederMap';
 import NodePanel from '../components/NodePanel';
 import ScenarioPanel from '../components/ScenarioPanel';
 import CascadeOverlay from '../components/CascadeOverlay';
+import NodeInspector from '../components/NodeInspector';
 import EventTimeline from '../components/EventTimeline';
 import CrewAlertMock from '../components/CrewAlertMock';
 import ThresholdTuner from '../components/ThresholdTuner';
 import AuditLog from '../components/AuditLog';
+import BootScreen from '../components/BootScreen';
+import { useFeeder } from '../store/feederStore';
 import { Btn } from '../components/ui';
 
 type Drawer = 'crew' | 'tuning' | 'audit' | null;
@@ -21,6 +24,10 @@ const DRAWER_LABEL: Record<Exclude<Drawer, null>, string> = {
 
 export default function Console() {
   const [drawer, setDrawer] = useState<Drawer>(null);
+  // Nothing has arrived yet — a cold-starting free-tier backend can sit here
+  // for several seconds, so the wait gets the boot animation rather than an
+  // empty grid of panels.
+  const booting = useFeeder((s) => s.order.length === 0);
   const toggle = (d: Exclude<Drawer, null>) => setDrawer((cur) => (cur === d ? null : d));
 
   // Escape closes the sheet — it covers the stage, so there must be a way out
@@ -35,6 +42,12 @@ export default function Console() {
   return (
     <div className="flex h-full flex-col overflow-hidden">
       <CommandBar />
+      {booting ? (
+        <div className="min-h-0 flex-1">
+          <BootScreen note="Waking the feeder service…" />
+        </div>
+      ) : (
+      <>
       <KpiStrip />
 
       {/* lg: the map is the star and the rail sits beside it.
@@ -52,6 +65,7 @@ export default function Console() {
           <div className="relative h-[54vh] shrink-0 lg:h-auto lg:min-h-0 lg:flex-1">
             <FeederMap />
             <CascadeOverlay />
+            <NodeInspector />
           </div>
           <EventTimeline />
         </div>
@@ -71,6 +85,9 @@ export default function Console() {
           </nav>
         </aside>
       </main>
+
+      </>
+      )}
 
       {/* An overlay sheet, not a flex sibling. As a sibling it stole its height
           from the stage and squeezed the map down to a sliver — the one panel

@@ -1,22 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useFeeder, isOffline } from '../store/feederStore';
-import { STATE, STATE_ORDER } from '../theme/state';
+import { Link } from '../router';
 import NodeCard from './NodeCard';
+import StateKey from './StateKey';
 import { Empty, Panel } from './ui';
-
-/** Compact legend — the key to every pin, badge and span on screen. */
-function Legend() {
-  return (
-    <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 border-b border-line-soft px-3 py-1.5">
-      {STATE_ORDER.map((s) => (
-        <span key={s} className="flex items-center gap-1 text-2xs text-ink-3" title={STATE[s].meaning}>
-          <span aria-hidden="true" style={{ color: STATE[s].color }}>{STATE[s].glyph}</span>
-          {STATE[s].label}
-        </span>
-      ))}
-    </div>
-  );
-}
 
 export default function NodePanel() {
   const order = useFeeder((s) => s.order);
@@ -42,15 +29,24 @@ export default function NodePanel() {
     <Panel
       title="Nodes"
       right={
-        <span className={`cc-mono text-2xs tabular-nums ${bad ? 'text-warning' : 'text-ink-3'}`}>
-          {bad === 0 ? `${order.length} healthy` : `${bad} of ${order.length} need attention`}
+        <span className="flex items-center gap-2">
+          <span className={`cc-mono text-2xs tabular-nums ${bad ? 'text-warning' : 'text-ink-3'}`}>
+            {bad === 0 ? `${order.length} healthy` : `${bad} of ${order.length} need attention`}
+          </span>
+          <Link
+            to="/nodes"
+            title="See every node's field trace side by side"
+            className="rounded border border-line px-1.5 py-0.5 text-2xs font-semibold text-ink-3 transition hover:border-ink-3 hover:text-ink-2"
+          >
+            Expand
+          </Link>
         </span>
       }
       className="min-h-[200px] flex-1"
       dense
       bodyClassName="flex flex-col"
     >
-      <Legend />
+      <StateKey compact />
       <div className="cc-scroll flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto p-2">
         {order.map((id) =>
           nodes[id] ? (

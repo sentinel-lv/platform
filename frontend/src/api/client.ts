@@ -21,4 +21,11 @@ export const api = {
     req<{ node_id: string }>(`/nodes`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }),
   removeNode: (nid: string) =>
     req<{ removed: string }>(`/nodes/${nid}`, { method: 'DELETE' }),
+  nodeMeta: (nid: string) => req<import('../types/protocol').NodeMeta>(`/nodes/${nid}/meta`),
+  patchNode: (nid: string, patch: Partial<import('../types/protocol').NodeMeta>) =>
+    req<import('../types/protocol').NodeMeta>(`/nodes/${nid}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(patch),
+    }),
 };

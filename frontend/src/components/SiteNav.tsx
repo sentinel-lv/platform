@@ -1,4 +1,5 @@
 import { Link, type Route } from '../router';
+import ThemeToggle from './ThemeToggle';
 
 /** Pull the console chunk down before the click, so navigation feels instant. */
 const warmConsole = () => { void import('../pages/Console'); };
@@ -37,14 +38,17 @@ export default function SiteNav({ route }: { route: Route }) {
           ))}
         </nav>
 
-        <Link
+        <div className="ml-auto flex items-center gap-2.5">
+          <ThemeToggle />
+          <Link
           to="/console"
           onMouseEnter={warmConsole}
           onFocus={warmConsole}
-          className="ml-auto rounded bg-accent px-3.5 py-1.5 text-xs font-bold text-white transition hover:brightness-110"
+          className="rounded bg-accent px-3.5 py-1.5 text-xs font-bold text-white transition hover:brightness-110"
         >
           Live console
-        </Link>
+          </Link>
+        </div>
       </div>
     </header>
   );

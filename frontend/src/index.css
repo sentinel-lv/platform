@@ -106,9 +106,9 @@ body {
   color: #fff;
   border: 2px solid rgba(255,255,255,.92);
   box-shadow: 0 2px 8px rgba(0,0,0,.65);
-  transition: transform .16s ease, box-shadow .16s ease;
+  transition: scale .16s ease, box-shadow .16s ease;
 }
-.cc-pin:hover { transform: scale(1.12); }
+.cc-pin:hover { scale: 1.12; }   /* `scale`, not `transform` — see FeederMap */
 .cc-pin[data-alarm="true"] { animation: cc-pin-alarm 1.15s ease-in-out infinite; }
 
 @keyframes cc-pin-alarm {

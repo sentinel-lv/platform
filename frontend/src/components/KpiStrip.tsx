@@ -41,11 +41,19 @@ function LatencyHero() {
         Detection <span className="text-ink-3">→</span> isolation
       </div>
 
-      {/* Hero figure: >=48px, same sans as the rest, proportional figures. */}
+      {/* Hero figure: >=48px, same sans as the rest, proportional figures.
+          Before the first event the slot holds a smaller placeholder — an
+          em-dash at 56px reads as a broken element, not as "no value yet". */}
       <div className={`flex items-baseline gap-2 ${tone} ${flash ? 'cc-rise' : ''}`}>
-        <span data-testid="hero-latency" className="text-hero font-extrabold">
-          {ms ?? '—'}
-        </span>
+        {ms === null ? (
+          <span data-testid="hero-latency" className="text-display font-extrabold text-ink-3">
+            ––
+          </span>
+        ) : (
+          <span data-testid="hero-latency" className="text-hero font-extrabold">
+            {ms}
+          </span>
+        )}
         <span className="text-sm font-semibold text-ink-3">ms</span>
       </div>
 

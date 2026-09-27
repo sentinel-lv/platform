@@ -11,6 +11,14 @@ import re
 
 NODE_RE = re.compile(r"^N-\d{3}$")
 
+# Fields an operator may change after commissioning. `node_id` is deliberately
+# NOT among them: PROTOCOL.md defines it as N- plus three digits ascending
+# downstream from the feeder head, and that ordering is the only reason a fault
+# span is computable at all. Renaming one would silently invalidate every
+# recorded span, the shared test vectors and the gateway's own view of the
+# feeder. Operators get `label` instead — a human name for the same pole.
+MUTABLE = {"label", "device_id", "notes", "lat", "lng", "span_m"}
+
 class GeoRegistry:
     def __init__(self):
         fp = pathlib.Path(__file__).resolve().parents[2] / "simulator" / "feeders" / "kseb_tvm_f12.json"
@@ -21,7 +29,13 @@ class GeoRegistry:
                     "substation": {"lat": 8.5241, "lng": 76.9366}, "nodes": []}
         self.feeder_id = spec["feeder_id"]
         self.substation = spec.get("substation", {})
-        self.nodes: list[dict] = [dict(n) for n in spec.get("nodes", [])]
+        self.nodes: list[dict] = []
+        for n in spec.get("nodes", []):
+            node = dict(n)
+            node.setdefault("label", "")
+            node.setdefault("device_id", "")
+            node.setdefault("notes", "")
+            self.nodes.append(node)
 
     def order(self) -> list[str]:
         return [n["node_id"] for n in self.nodes]
@@ -33,11 +47,34 @@ class GeoRegistry:
             raise ValueError(f"{node_id} already exists")
         if after is not None and after not in self.order():
             raise ValueError(f"unknown upstream {after!r}")
-        node = {"node_id": node_id, "lat": lat, "lng": lng, "span_m": span_m}
+        node = {"node_id": node_id, "lat": lat, "lng": lng, "span_m": span_m,
+                "label": "", "device_id": "", "notes": ""}
         if after is None:
             self.nodes.append(node)
         else:
             self.nodes.insert(self.order().index(after) + 1, node)
+        return node
+
+    def get(self, node_id) -> dict:
+        for n in self.nodes:
+            if n["node_id"] == node_id:
+                return n
+        raise ValueError(f"unknown node {node_id!r}")
+
+    def update_node(self, node_id, **fields) -> dict:
+        """Patch operator-editable metadata. Unknown or immutable keys raise."""
+        node = self.get(node_id)
+        bad = set(fields) - MUTABLE
+        if bad:
+            raise ValueError(f"not editable: {sorted(bad)} (allowed: {sorted(MUTABLE)})")
+        for k in ("lat", "lng", "span_m"):
+            if k in fields and fields[k] is not None:
+                fields[k] = float(fields[k])
+        if "span_m" in fields and fields["span_m"] is not None and fields["span_m"] <= 0:
+            raise ValueError("span_m must be positive")
+        for k, v in fields.items():
+            if v is not None:
+                node[k] = v
         return node
 
     def remove_node(self, node_id) -> None:

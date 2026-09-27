@@ -107,13 +107,18 @@ export default function ArchitectureDiagram() {
           accent="var(--cc-critical)" fill="var(--cc-surface-2)" />
 
         {/* ---- the divider: the whole argument -------------------------- */}
-        <line x1="24" y1="286" x2="856" y2="286"
-          stroke="var(--cc-critical)" strokeWidth="1.5" strokeDasharray="7 5" opacity=".75" />
-        <rect x="24" y="274" width="330" height="24" rx="5" fill="var(--cc-bg)" />
-        <text x="34" y="291" fill="var(--cc-critical)" fontSize="11.5" fontWeight="800"
-          letterSpacing="1.2" fontFamily="Inter, sans-serif">
+        {/* The caption owns the left of this row and the rule starts after
+            it. Masking the rule behind a filled rect was fragile — the text is
+            wider than any fixed rect, so the tail of it came out struck
+            through — and the uplink arrow crosses at x=288, which is inside
+            the caption's span anyway. Starting the rule clear of both means
+            nothing overlaps at any width. */}
+        <text x="24" y="291" fill="var(--cc-critical)" fontSize="11.5" fontWeight="800"
+          letterSpacing="1.1" fontFamily="Inter, sans-serif">
           TRIP PATH ENDS HERE — BELOW IS OBSERVATION ONLY
         </text>
+        <line x1="404" y1="286" x2="856" y2="286"
+          stroke="var(--cc-critical)" strokeWidth="1.5" strokeDasharray="7 5" opacity=".75" />
 
         <Arrow x1={288} y1={248} x2={288} y2={326} label="LTE / MQTT · buffered when offline" labelDy={20} />
 

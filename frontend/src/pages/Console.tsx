@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import CommandBar from '../components/CommandBar';
 import KpiStrip from '../components/KpiStrip';
 import FeederMap from '../components/FeederMap';
@@ -13,9 +13,24 @@ import { Btn } from '../components/ui';
 
 type Drawer = 'crew' | 'tuning' | 'audit' | null;
 
+const DRAWER_LABEL: Record<Exclude<Drawer, null>, string> = {
+  crew: 'Crew alert mock',
+  tuning: 'Threshold tuning',
+  audit: 'Audit log',
+};
+
 export default function Console() {
   const [drawer, setDrawer] = useState<Drawer>(null);
   const toggle = (d: Exclude<Drawer, null>) => setDrawer((cur) => (cur === d ? null : d));
+
+  // Escape closes the sheet — it covers the stage, so there must be a way out
+  // that does not require finding a button.
+  useEffect(() => {
+    if (!drawer) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setDrawer(null); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [drawer]);
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
@@ -57,14 +72,40 @@ export default function Console() {
         </aside>
       </main>
 
+      {/* An overlay sheet, not a flex sibling. As a sibling it stole its height
+          from the stage and squeezed the map down to a sliver — the one panel
+          you never want to lose mid-demo. */}
       {drawer && (
-        <div className="max-h-[46vh] shrink-0 overflow-y-auto border-t border-line bg-surface-1 p-2.5 cc-scroll">
-          <div className="cc-rise">
-            {drawer === 'crew' && <CrewAlertMock />}
-            {drawer === 'tuning' && <ThresholdTuner />}
-            {drawer === 'audit' && <AuditLog />}
+        <>
+          <div
+            className="fixed inset-0 z-40 bg-black/50"
+            onClick={() => setDrawer(null)}
+            aria-hidden="true"
+          />
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={DRAWER_LABEL[drawer]}
+            className="cc-scroll cc-rise fixed inset-x-0 bottom-0 z-50 max-h-[72vh] overflow-y-auto border-t border-line bg-surface-1 p-3 shadow-lift"
+          >
+            <div className="mx-auto w-full max-w-3xl">
+              <div className="mb-1 flex items-center justify-between">
+                <h2 className="text-2xs font-bold uppercase tracking-[.14em] text-ink-3">
+                  {DRAWER_LABEL[drawer]}
+                </h2>
+                <button
+                  onClick={() => setDrawer(null)}
+                  className="rounded px-2 py-1 text-2xs font-semibold text-ink-3 transition hover:bg-surface-3 hover:text-ink-2"
+                >
+                  Close <span aria-hidden="true" className="text-ink-3">esc</span>
+                </button>
+              </div>
+              {drawer === 'crew' && <CrewAlertMock />}
+              {drawer === 'tuning' && <ThresholdTuner />}
+              {drawer === 'audit' && <AuditLog />}
+            </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );

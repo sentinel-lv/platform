@@ -107,15 +107,17 @@ export default function ArchitectureDiagram() {
           accent="var(--cc-critical)" fill="var(--cc-surface-2)" />
 
         {/* ---- the divider: the whole argument -------------------------- */}
-        {/* Caption ABOVE the rule, never beside it.
-            SVG text has no layout: its width is whatever the rendered font
-            makes it. Sitting the caption on the same line as the rule left
-            ~11px of clearance with Inter loaded — and the moment Inter has not
-            loaded (first paint, slow link, blocked webfont) the wider fallback
-            runs straight through the rule. Putting it on its own row makes the
-            collision structurally impossible at any font.
-            The rule itself is split so it does not cut the uplink arrow at x=288. */}
-        <text x="24" y="278" fill="var(--cc-critical)" fontSize="11.5" fontWeight="800"
+        {/* Caption: right-anchored, on its own row above the rule.
+            SVG text has no layout — its width is whatever the rendered font
+            produces — so anything positioned next to it is fragile. Two
+            attempts failed here: beside the rule (overlapped once Inter had
+            not loaded and the fallback rendered wider) and left-aligned above
+            it (grew rightwards straight through the uplink arrow at x=288).
+            Anchoring to the right edge makes it grow LEFTWARDS, away from the
+            arrow, with ~140px of slack before it could reach x=288. The rule
+            below is split so it does not cut the arrow either. */}
+        <text x="856" y="278" textAnchor="end"
+          fill="var(--cc-critical)" fontSize="11.5" fontWeight="800"
           letterSpacing="1.1" fontFamily="Inter, sans-serif">
           TRIP PATH ENDS HERE — BELOW IS OBSERVATION ONLY
         </text>

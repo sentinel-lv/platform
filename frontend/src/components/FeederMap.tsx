@@ -84,10 +84,14 @@ function rasterPaint(theme: 'dark' | 'light'): Record<string, number> {
         'raster-opacity': 0.85,
       }
     : {
-        'raster-saturation': -0.62,
-        'raster-brightness-min': 0.12,
-        'raster-contrast': 0.05,
-        'raster-opacity': 0.92,
+        // Light mode still needs the tiles pushed back: OSM's greens, pinks and
+        // motorway oranges compete directly with the status hues, and status is
+        // the only colour that should carry meaning on this map.
+        'raster-saturation': -0.92,
+        'raster-brightness-min': 0.26,
+        'raster-brightness-max': 0.99,
+        'raster-contrast': -0.12,
+        'raster-opacity': 0.82,
       };
 }
 
@@ -260,6 +264,18 @@ export default function FeederMap() {
     if (map.isStyleLoaded()) apply();
     else map.once('load', apply);
   }, [resolved, mapEpoch]);
+
+  // "Centre on map" from the inspector. A custom event rather than store
+  // state: this is a one-shot imperative camera move, not something any
+  // component should be able to re-derive and re-fire on a rerender.
+  useEffect(() => {
+    const onFly = (e: Event) => {
+      const { lng, lat } = (e as CustomEvent<{ lng: number; lat: number }>).detail;
+      mapObj.current?.easeTo({ center: [lng, lat], zoom: 16.5, duration: 700 });
+    };
+    window.addEventListener('cc:flyto', onFly);
+    return () => window.removeEventListener('cc:flyto', onFly);
+  }, []);
 
   // re-evaluate staleness on a ticker so OFFLINE appears without new frames
   const [tick, setTick] = useState(0);

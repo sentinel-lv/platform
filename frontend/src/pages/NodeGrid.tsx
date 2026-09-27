@@ -68,6 +68,9 @@ export default function NodeGrid() {
         </Link>
         <span className="h-4 w-px bg-line" />
         <h1 className="text-2xs font-bold uppercase tracking-[.14em] text-ink-3">All nodes</h1>
+        <span className="hidden text-2xs text-ink-3 sm:inline">
+          every node's field trace, side by side
+        </span>
 
         <div className="ml-auto flex flex-wrap items-center gap-1">
           <button

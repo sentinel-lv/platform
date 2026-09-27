@@ -97,7 +97,10 @@ export function Stat({
     critical: 'text-critical', accent: 'text-accent',
   }[tone];
   return (
-    <div className="flex min-w-0 flex-col justify-center gap-0.5 px-3.5 py-2" title={hint}>
+    <div
+      className="flex min-w-0 flex-col justify-center gap-0.5 border-line px-3.5 py-2 sm:border-r sm:last:border-r-0"
+      title={hint}
+    >
       <div className="truncate text-2xs font-semibold uppercase tracking-[.12em] text-ink-3">{label}</div>
       <div className={`flex items-baseline gap-1 ${toneCls}`}>
         <span className={`text-lg font-bold leading-none ${mono ? 'cc-mono tabular-nums' : ''}`}>{value}</span>

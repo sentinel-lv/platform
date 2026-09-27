@@ -52,9 +52,13 @@ nothing.
 unpriced rows — budget unverifiable until filled: ['IP65 enclosure + clamp + jig']
 ```
 
-The ₹1,800 target is claimed on the landing page and will be asked about. It is
-**not** verifiable until that row is priced. Leave the test red until it is —
-that is the test doing its job.
+The cost figure has been **removed from the landing page** (2026-09-27). It was
+being stated as achieved while one line of the BOM had no price in it, which is
+exactly the kind of number a utility engineer asks for a source on.
+
+Leave the test red until the row is priced. Until then the honest position is
+"BOM target, not yet verified" — and that is what the READMEs now say. Once it
+is priced and the gate goes green, the number can go back on the page.
 
 ---
 
@@ -62,7 +66,7 @@ that is the test doing its job.
 
 ### Before the demo video
 
-- [ ] Price the enclosure row → BOM gate green → the ₹1,800 claim is defensible.
+- [ ] Price the enclosure row → BOM gate green → the cost figure becomes quotable and can return to the landing page.
 - [ ] Deploy: Render (backend) + Vercel (frontend), set `VITE_API_URL` /
       `VITE_WS_URL`, confirm CORS, confirm `/healthz`.
 - [ ] Warm-up: hit `/healthz` ten minutes before recording; the console already

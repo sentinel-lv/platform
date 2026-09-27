@@ -27,11 +27,31 @@ function Section({
   );
 }
 
+/**
+ * Every figure is tagged with whether it has actually been measured yet.
+ *
+ * Two of these are real numbers out of running code; two are engineering
+ * targets for hardware that has not been built. Presenting all four as
+ * achieved is how a panel catches you — and saying which is which reads as
+ * discipline rather than as a caveat.
+ */
 const TARGETS = [
-  { v: '< 2 s', k: 'detection → isolation', d: 'Measured on every event as latency_ms, from the first SUSPECT to command issue.' },
-  { v: '₹1,800', k: 'BOM per node', d: 'Prototype quantity; a 1,000-unit projection is maintained alongside it.' },
-  { v: '< 5 mA', k: 'average current', d: '6 V 1 W panel and one 18650 LiFePO4, sized for five days of monsoon overcast.' },
-  { v: '≥ 300 m', k: 'inter-node range', d: 'LoRa SF9 / BW 125 kHz / CR 4-5, line of sight along the span.' },
+  {
+    v: '< 2 s', k: 'detection → isolation', proven: true,
+    d: 'Measured on every event as latency_ms, from the first SUSPECT to command issue. The live console shows the real figure.',
+  },
+  {
+    v: '0', k: 'false trips in the bench set', proven: true,
+    d: 'Rain, vegetation, substation outage and switching transients are committed test vectors. Both the Python and the C arbiter are held to them in CI.',
+  },
+  {
+    v: '< 5 mA', k: 'average node current', proven: false,
+    d: 'Budgeted for a 6 V 1 W panel and one 18650 LiFePO4 over five days of monsoon overcast. To be confirmed with a meter once a board exists.',
+  },
+  {
+    v: '≥ 300 m', k: 'inter-node range', proven: false,
+    d: 'LoRa SF9 / BW 125 kHz / CR 4-5, line of sight along the span. To be measured in the field, not asserted.',
+  },
 ];
 
 const SCENARIOS = [
@@ -114,6 +134,16 @@ export default function Landing() {
               <div key={t.k}>
                 <dd className="text-xl font-extrabold tracking-tight">{t.v}</dd>
                 <dt className="mt-0.5 text-2xs uppercase tracking-[.1em] text-ink-3">{t.k}</dt>
+                <dd
+                  className={`mt-1 inline-block rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[.1em] ${
+                    t.proven ? 'bg-good-dim text-good' : 'bg-surface-2 text-ink-3'
+                  }`}
+                  title={t.proven
+                    ? 'Produced by code running in this demo'
+                    : 'An engineering target — the hardware to confirm it does not exist yet'}
+                >
+                  {t.proven ? 'measured' : 'target'}
+                </dd>
               </div>
             ))}
           </dl>
@@ -256,14 +286,25 @@ export default function Landing() {
       </Section>
 
       {/* 06 — targets in detail */}
-      <Section n="06" title="Design targets" lead="Each one is something we can be held to, with the thing that proves it named alongside.">
+      <Section
+        n="06"
+        title="Design targets"
+        lead="Each one is something we can be held to — and each says whether it has actually been measured yet or is still a number we are aiming at. Two of these come out of code running in this demo. Two are waiting on hardware that has not been built."
+      >
         <div className="grid gap-px overflow-hidden rounded-panel border border-line bg-line sm:grid-cols-2">
           {TARGETS.map((t, i) => (
             <Reveal key={t.k} delay={i * 70}>
               <div className="h-full bg-surface-1 p-4">
-                <div className="flex items-baseline gap-2.5">
+                <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
                   <span className="text-display font-extrabold tracking-tight">{t.v}</span>
                   <span className="text-2xs uppercase tracking-[.1em] text-ink-3">{t.k}</span>
+                  <span
+                    className={`ml-auto rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[.1em] ${
+                      t.proven ? 'bg-good-dim text-good' : 'bg-surface-3 text-ink-3'
+                    }`}
+                  >
+                    {t.proven ? 'measured' : 'target'}
+                  </span>
                 </div>
                 <p className="mt-1.5 text-xs leading-relaxed text-ink-2">{t.d}</p>
               </div>

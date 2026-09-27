@@ -128,7 +128,7 @@ itself — it reads literals through `cssVar()` and re-applies them with
 
 ```
 ┌───────────────────────────────────────────────────┐
-│ StatusBar  KSEB-TVM-F12 · 12 nodes · ALERT_ONLY · ● LIVE │
+│ StatusBar  SLV-TVM-F12 · 12 nodes · ALERT_ONLY · ● LIVE │
 ├──────────────────────────────────┬────────────────┤
 │                                  │ ScenarioPanel  │
 │           FeederMap              │ [Break mid-feeder] │

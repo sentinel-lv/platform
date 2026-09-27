@@ -1,6 +1,6 @@
 """Feeder geometry registry (runtime topology).
 
-Loads the OSM baseline from simulator/feeders/kseb_tvm_f12.json once; node
+Loads the OSM baseline from simulator/feeders/slv_tvm_f12.json once; node
 commissioning (POST /nodes) mutates the in-memory order, which is what the
 map, the arbiter snapshot and the simulator all follow. Ordering is explicit
 (never re-sorted): fault spans are only meaningful in feeder order.
@@ -21,11 +21,11 @@ MUTABLE = {"label", "device_id", "notes", "lat", "lng", "span_m"}
 
 class GeoRegistry:
     def __init__(self):
-        fp = pathlib.Path(__file__).resolve().parents[2] / "simulator" / "feeders" / "kseb_tvm_f12.json"
+        fp = pathlib.Path(__file__).resolve().parents[2] / "simulator" / "feeders" / "slv_tvm_f12.json"
         try:
             spec = json.loads(fp.read_text())
         except FileNotFoundError:
-            spec = {"feeder_id": "KSEB-TVM-F12",
+            spec = {"feeder_id": "SLV-TVM-F12",
                     "substation": {"lat": 8.5241, "lng": 76.9366}, "nodes": []}
         self.feeder_id = spec["feeder_id"]
         self.substation = spec.get("substation", {})

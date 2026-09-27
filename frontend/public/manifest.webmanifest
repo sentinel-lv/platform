@@ -1,5 +1,5 @@
 {
-  "name": "Closed-Circuit — KSEB-TVM-F12",
+  "name": "Closed-Circuit — SLV-TVM-F12",
   "short_name": "Closed-Circuit",
   "description": "Simulated feeder, live consensus engine: LV conductor-break operator view.",
   "start_url": ".",

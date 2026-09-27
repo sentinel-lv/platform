@@ -9,12 +9,12 @@ from app.iec104 import scada_points, IOA_BASE_STATUS
 from app.ota import OtaRegistry
 
 def test_mqtt_parse_ok_and_rejects():
-    t = "cc/feeder/KSEB-TVM-F12/node/N-007/telemetry"
+    t = "cc/feeder/SLV-TVM-F12/node/N-007/telemetry"
     body = {"ts": 1, "efield_rms": 4.8, "baseline": 4.9, "deviation_pct": -2.0,
             "battery_mv": 3800, "rssi": -90, "temp_c": 31.0, "state": "NORMAL", "seq": 5}
     import json
     out = parse_telemetry(t, json.dumps(body))
-    assert out["node_id"] == "N-007" and out["feeder_id"] == "KSEB-TVM-F12"
+    assert out["node_id"] == "N-007" and out["feeder_id"] == "SLV-TVM-F12"
     with pytest.raises(ValueError):
         parse_telemetry("cc/nope", "{}")
     with pytest.raises(ValueError):
@@ -66,7 +66,7 @@ def test_archive_records_when_enabled(tmp_path, monkeypatch):
     import asyncio
     from app import ingest as _ing
     _ing._archive_inst = None
-    tel = {"node_id": "N-001", "feeder_id": "KSEB-TVM-F12", "ts": 1,
+    tel = {"node_id": "N-001", "feeder_id": "SLV-TVM-F12", "ts": 1,
            "efield_rms": 4.8, "baseline": 4.9, "deviation_pct": -2.0,
            "battery_mv": 3800, "rssi": -90, "temp_c": 31.0,
            "state": "NORMAL", "seq": 1}

@@ -89,4 +89,4 @@ def test_add_node_midspan_order_and_telemetry():
             n.step(t, weather=1.0, break_mask=1.0)
         t += int(DT * 1000)
     assert f.by_id["N-013"].state == "NORMAL", (f.by_id["N-013"].state, f.by_id["N-013"].deviation)
-    assert len(f.by_id["N-013"].telemetry("KSEB-TVM-F12", t)) == 11
+    assert len(f.by_id["N-013"].telemetry("SLV-TVM-F12", t)) == 11

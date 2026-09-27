@@ -15,11 +15,11 @@ Two jobs, and the second is the one people forget:
 
 ## 2. Feeder model
 
-Use real coordinates. Pull an actual LT distribution line from OpenStreetMap in the Thiruvananthapuram area, take 12 pole positions along it, and store them in `feeders/kseb_tvm_f12.json`. Judges notice invented geometry, and a real polyline costs you thirty minutes.
+Use real coordinates. Pull an actual LT distribution line from OpenStreetMap in the Thiruvananthapuram area, take 12 pole positions along it, and store them in `feeders/slv_tvm_f12.json`. Judges notice invented geometry, and a real polyline costs you thirty minutes.
 
 ```json
 {
-  "feeder_id": "KSEB-TVM-F12",
+  "feeder_id": "SLV-TVM-F12",
   "substation": { "lat": 8.5241, "lng": 76.9366 },
   "nodes": [
     { "node_id": "N-001", "lat": 8.5245, "lng": 76.9371, "span_m": 42 },
@@ -64,7 +64,7 @@ Each scenario is a coroutine that mutates simulator state over time and then exi
 
 ```
 simulator/
-├── feeders/kseb_tvm_f12.json
+├── feeders/slv_tvm_f12.json
 ├── sim/
 │   ├── node.py               per-node signal generation, baseline EWMA
 │   ├── feeder.py             feeder orchestration, tick loop

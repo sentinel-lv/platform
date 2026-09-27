@@ -57,7 +57,7 @@ function pushHist(arr: number[], v: number) {
 }
 
 export const useFeeder = create<State>((set) => ({
-  feederId: 'KSEB-TVM-F12',
+  feederId: 'SLV-TVM-F12',
   poles: [],
   substation: { lat: 8.5241, lng: 76.9366 },
   nodes: {},

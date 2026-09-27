@@ -50,7 +50,7 @@ class Node:
             self.baseline += ALPHA * (self.efield - self.baseline)
         self.deviation = (self.efield - self.baseline) / self.baseline * 100.0
         self._detector(now_ms)
-        return self.telemetry("KSEB-TVM-F12", now_ms)
+        return self.telemetry("SLV-TVM-F12", now_ms)
 
     def _detector(self, now_ms):
         # 10x50 ms sub-steps per telemetry tick: fresh noise each window, same

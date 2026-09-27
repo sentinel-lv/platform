@@ -8,7 +8,7 @@ from ..security import operator_required
 router = APIRouter()
 
 @router.get("/events")
-def list_events(feeder_id: str = "KSEB-TVM-F12", limit: int = 50):
+def list_events(feeder_id: str = "SLV-TVM-F12", limit: int = 50):
     return [e for e in reversed(event_log) if e["feeder_id"] == feeder_id][:limit]
 
 @router.post("/events/{eid}/ack")

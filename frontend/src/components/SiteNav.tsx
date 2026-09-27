@@ -12,7 +12,7 @@ const LINKS: { to: Route; label: string }[] = [
 /** Marketing-side header. The console has its own CommandBar instead. */
 export default function SiteNav({ route }: { route: Route }) {
   return (
-    <header className="sticky top-0 z-30 border-b border-line bg-bg/90 backdrop-blur">
+    <header className="sticky top-0 z-30 border-b border-line bg-bg">
       <div className="mx-auto flex max-w-[1120px] items-center gap-4 px-5 py-3">
         <Link to="/" className="flex items-center gap-2">
           <svg width="20" height="20" viewBox="0 0 22 22" aria-hidden="true">

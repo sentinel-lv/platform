@@ -12,7 +12,17 @@ import { Empty, Panel } from './ui';
  * the log under one incident, so past two the row counts them and the full
  * list stays in the title attribute.
  */
+const REASON_WORDS: Record<string, string> = {
+  global_collapse_veto: 'substation outage — global-collapse veto, no trip',
+  all_nodes_stale: 'whole feeder silent — comms loss, no trip',
+  quorum_not_met: 'quorum not met — no trip',
+  single_node_no_quorum: 'single node asserted — no quorum, no trip',
+  multiple_boundaries_ambiguous: 'ambiguous span — refused rather than guess',
+  no_fault: 'field recovered',
+};
+
 function prettyReason(r: string): string {
+  if (REASON_WORDS[r]) return REASON_WORDS[r];
   const m = /^node offline:(.+)$/.exec(r);
   if (m) {
     const ids = m[1].split(',').map((s) => s.trim()).filter(Boolean);
@@ -31,6 +41,9 @@ function kindOf(e: FeederEvent): Kind {
   // the whole demo exists to show.
   if (e.isolated) return { label: 'ISOLATED', cls: 'bg-critical text-white', glyph: '✕' };
   if (isConfirmedFault(e)) return { label: 'BREAK', cls: 'bg-critical text-white', glyph: '✕' };
+  // A veto is an active refusal by the arbiter, not a fault that faded out.
+  // It reads differently from a plain recovery and deserves its own chip.
+  if (e.reason.includes('veto')) return { label: 'VETOED', cls: 'bg-accent text-white', glyph: '⦸' };
   if (e.type === 'FALSE_POSITIVE_REJECTED') return { label: 'REJECTED', cls: 'bg-accent-dim text-accent', glyph: '✓' };
   if (e.type === 'NODE_OFFLINE') return { label: 'OFFLINE', cls: 'bg-surface-3 text-ink-3', glyph: '○' };
   if (e.type === 'LOW_BATTERY') return { label: 'BATTERY', cls: 'bg-warning-dim text-warning', glyph: '▾' };

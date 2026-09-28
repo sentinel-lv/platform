@@ -110,8 +110,9 @@ click-to-place for adding a node.
   fault span computable
 
 ### Event timeline
-Newest first. Each row: kind chip (`BREAK ✕`, `ISOLATED ✕`, `REJECTED ✓`,
-`OFFLINE ○`, `ALERT ▲`), timestamp, span or reason, and the latency badge.
+Newest first. Each row: kind chip (`BREAK ✕`, `ISOLATED ✕`, `VETOED ⦸`, `REJECTED ✓`,
+`OFFLINE ○`, `ALERT ▲`), timestamp, span or reason in plain words, and the
+latency badge.
 **Expand a row** for the vote trail — an indented tree of who saw what, with
 each hop's offset in milliseconds from the first SUSPECT.
 
@@ -146,7 +147,7 @@ Grouped in the UI by what they **prove**, which is the argument.
 |---|---|---|---|
 | **Rain burst** | All nodes −25% for 8 s, then recover | No trip | Recovers before the sustain window closes |
 | **Vegetation** | One node −45%, fluctuating, sustained | Alert only | A single node is never a quorum |
-| **Substation outage** | Every node → ~1% simultaneously | No trip | **Global-collapse veto** — that is an outage, not a break |
+| **Substation outage** | Every node → ~1% simultaneously | No trip | **Global-collapse veto** — that is an outage, not a break. Timeline shows a blue **VETOED** row: *"substation outage — global-collapse veto, no trip"*, and "False alarms rejected" ticks up while "Breaks detected" stays at 0. |
 | **Switching transient** | 300 ms spike | No trip | Fails the sustain requirement; never reaches SUSPECT |
 
 ### Maintenance

@@ -71,10 +71,30 @@ async def _evaluate(st, feeder_id: str, now: int, suppress_rejection: bool):
         key = (decision.action, decision.fault_span, decision.reason)
         if decision.action == "NONE":
             last = _last_key.get(feeder_id)
+
+            # A veto is an ACTIVE refusal, not the absence of a fault: the
+            # arbiter saw a collapse and declined to trip. It used to emit
+            # nothing at all, which made substation_outage look like a dead
+            # button — every node went SUSPECT on the map and the timeline
+            # only showed the misleading single_node_no_quorum rows from the
+            # ramp-up. Surface it, deduped so a held outage is one row.
+            if decision.reason != "no_fault":
+                if key == last:
+                    return
+                _last_key[feeder_id] = key
+                trail = [{"ts": n.ts, "node": n.node_id, "state": n.state}
+                         for n in snap if n.state in ("SUSPECT", "CONFIRMED")]
+                ev = build_event(feeder_id, decision, trail, now)
+                event_log.append(ev)
+                await hub.broadcast("event", ev)
+                if _archive() is not None:
+                    _archive().append("event", ev)
+                return
+
             # rejection line = we suspected (ALERT or vetoed SUSPECT wave) but never
             # isolated, and the field is back. After a true ISOLATE, or when a node
             # simply returns from OFFLINE, clear silently.
-            if decision.reason == "no_fault" and not suppress_rejection and not _isolated_episode.get(feeder_id) and (
+            if not suppress_rejection and not _isolated_episode.get(feeder_id) and (
                     (last is not None and last[0] != "ISOLATE") or _saw_suspect.get(feeder_id)):
                 ev = build_event(feeder_id, decision,
                                  [{"ts": now, "node": "GW", "state": "RECOVERED"}], now)

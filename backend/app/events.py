@@ -22,7 +22,8 @@ def build_event(feeder_id: str, decision, trail: list[dict], now_ms: int) -> dic
         else:
             isolated, _last_isolate_ms[feeder_id] = True, now_ms
     etype = ("CONDUCTOR_BREAK" if isolated
-             else "FALSE_POSITIVE_REJECTED" if decision.reason in ("no_fault",) or "recover" in decision.reason
+             else "FALSE_POSITIVE_REJECTED" if decision.reason in ("no_fault",)
+             or "recover" in decision.reason or "veto" in decision.reason
              else "NODE_OFFLINE" if "offline" in decision.reason
              else "COMMS_LOSS" if "stale" in decision.reason else "CONDUCTOR_BREAK")
     # trail SUSPECTs also surface as rejection lines when nothing isolates

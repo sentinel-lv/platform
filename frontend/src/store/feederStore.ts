@@ -34,6 +34,8 @@ interface State {
   setScenario: (s: string | null) => void;
   setDismissCascade: (b: boolean) => void;
   selectNode: (id: string | null) => void;
+  /** Patch one event in place after a crew acknowledgement. */
+  markAcknowledged: (eventId: string, by: string) => void;
 }
 
 /**
@@ -131,6 +133,13 @@ export const useFeeder = create<State>((set) => ({
   setScenario: (scenarioRunning) => set({ scenarioRunning }),
   setDismissCascade: (dismissCascade) => set({ dismissCascade }),
   selectNode: (selectedNode) => set({ selectedNode }),
+  markAcknowledged: (eventId, by) => set((st) => {
+    const patch = (e: FeederEvent) => (e.event_id === eventId ? { ...e, acknowledged_by: by } : e);
+    return {
+      events: st.events.map(patch),
+      lastFault: st.lastFault ? patch(st.lastFault) : null,
+    };
+  }),
 }));
 
 // Client-side OFFLINE derivation (UI degrades honestly if stream stalls).

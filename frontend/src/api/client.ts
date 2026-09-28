@@ -13,6 +13,10 @@ export const api = {
     req<import('../types/protocol').Telemetry[]>(`/nodes/${nid}/history?feeder_id=${fid}&window=${window}`),
   events: (fid: string, limit = 50) =>
     req<import('../types/protocol').FeederEvent[]>(`/events?feeder_id=${fid}&limit=${limit}`),
+  ackEvent: (eid: string, by = 'crew-1') =>
+    req<import('../types/protocol').FeederEvent>(
+      `/events/${eid}/ack?by=${encodeURIComponent(by)}`, { method: 'POST' },
+    ),
   simulate: (scenario: string) =>
     req<{ started: string }>(`/simulate/${scenario}`, { method: 'POST' }),
   setMode: (fid: string, mode: string) =>

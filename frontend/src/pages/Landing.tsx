@@ -4,6 +4,7 @@ import DetectionGap from '../components/DetectionGap';
 import FieldBackdrop from '../components/FieldBackdrop';
 import Reveal from '../components/Reveal';
 import { Link } from '../router';
+import { useFeeder } from '../store/feederStore';
 
 const warmConsole = () => { void import('./Console'); };
 
@@ -82,6 +83,26 @@ const STATUS_STYLE: Record<string, string> = {
 
 /* ------------------------------------------------------------------- page */
 
+/**
+ * The console link warms the backend the moment this page loads, so by the
+ * time a judge clicks through it is usually already up. This says so, rather
+ * than letting them click into a minute of silence.
+ */
+function BackendChip() {
+  const backend = useFeeder((s) => s.backend);
+  const map = {
+    live: { dot: 'bg-good', tone: 'text-good', text: 'Live backend ready' },
+    waking: { dot: 'bg-warning', tone: 'text-warning', text: 'Waking the backend — first load takes a moment' },
+    unreachable: { dot: 'bg-ink-3', tone: 'text-ink-3', text: 'Backend still starting' },
+  }[backend];
+  return (
+    <span className={`flex items-center gap-1.5 text-2xs font-semibold ${map.tone}`}>
+      <span className={`inline-block h-1.5 w-1.5 rounded-full ${map.dot} ${backend === 'live' ? '' : 'cc-pulse'}`} />
+      {map.text}
+    </span>
+  );
+}
+
 export default function Landing() {
   return (
     <div>
@@ -113,7 +134,7 @@ export default function Landing() {
             signature.
           </p>
 
-          <div className="mt-9 flex flex-wrap items-center gap-3">
+          <div className="mt-9 flex flex-wrap items-center gap-x-3 gap-y-2">
             <Link
               to="/console"
               onMouseEnter={warmConsole}
@@ -128,6 +149,7 @@ export default function Landing() {
             >
               How it decides
             </Link>
+            <span className="w-full sm:w-auto sm:pl-2"><BackendChip /></span>
           </div>
 
           <dl className="mt-14 grid max-w-2xl grid-cols-2 gap-x-8 gap-y-5 sm:grid-cols-4">

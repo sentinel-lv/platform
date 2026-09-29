@@ -12,6 +12,13 @@ interface State {
   events: FeederEvent[];
   mode: string;
   conn: 'connecting' | 'live' | 'reconnecting';
+  /**
+   * Whether the backend has answered yet. Render's free tier sleeps, so a
+   * first load can sit here for the better part of a minute.
+   */
+  backend: 'waking' | 'live' | 'unreachable';
+  /** ms since the first bootstrap attempt — drives the honest progress copy */
+  wakingSince: number;
   scenarioRunning: string | null;
   /**
    * Newest event where the arbiter actually located a fault: quorum reached,
@@ -31,6 +38,7 @@ interface State {
   setGeo: (poles: Pole[], substation: { lat: number; lng: number }, mode: string) => void;
   backfill: (node_id: string, samples: Telemetry[]) => void;
   setConn: (c: State['conn']) => void;
+  setBackend: (b: State['backend']) => void;
   setScenario: (s: string | null) => void;
   setDismissCascade: (b: boolean) => void;
   selectNode: (id: string | null) => void;
@@ -67,6 +75,8 @@ export const useFeeder = create<State>((set) => ({
   events: [],
   mode: 'ALERT_ONLY',
   conn: 'connecting',
+  backend: 'waking',
+  wakingSince: Date.now(),
   scenarioRunning: null,
   lastFault: null,
   dismissCascade: false,
@@ -84,7 +94,12 @@ export const useFeeder = create<State>((set) => ({
         };
       }
       const order = Object.keys(nodes).sort();
-      return { nodes: { ...st.nodes, ...nodes }, order: order.length ? order : st.order, conn: 'live' as const };
+      return {
+        nodes: { ...st.nodes, ...nodes },
+        order: order.length ? order : st.order,
+        conn: 'live' as const,
+        backend: 'live' as const,
+      };
     }
     if (kind === 'telemetry') {
       const t = payload as unknown as Telemetry;
@@ -130,6 +145,7 @@ export const useFeeder = create<State>((set) => ({
     return { nodes: { ...st.nodes, [node_id]: { tel, hist, base } } };
   }),
   setConn: (conn) => set({ conn }),
+  setBackend: (backend) => set({ backend }),
   setScenario: (scenarioRunning) => set({ scenarioRunning }),
   setDismissCascade: (dismissCascade) => set({ dismissCascade }),
   selectNode: (selectedNode) => set({ selectedNode }),

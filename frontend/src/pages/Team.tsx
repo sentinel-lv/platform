@@ -117,7 +117,7 @@ export default function Team() {
   return (
     <div className="mx-auto max-w-[1080px] px-5 py-14 md:py-20">
       <p className="text-2xs font-semibold uppercase tracking-[.16em] text-ink-3">
-        Team 173301 · Closed-Circuit · VIT Bhopal
+        Team 173301 · Closed-Circuit · VIT Bhopal · PS SIH26223
       </p>
 
       <h1 className="mt-3 max-w-[16ch] text-[38px] font-extrabold leading-[1.04] tracking-[-.035em] md:text-[58px]">

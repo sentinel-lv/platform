@@ -112,7 +112,7 @@ export default function Landing() {
         <div className="relative mx-auto max-w-[1080px] px-5 py-16 md:py-24">
           <p className="mb-5 flex flex-wrap items-center gap-2 text-2xs font-semibold uppercase tracking-[.16em] text-ink-3">
             <span className="rounded border border-line bg-surface-2 px-2 py-1">Smart India Hackathon 2026</span>
-            <span className="rounded border border-line bg-surface-2 px-2 py-1">Student Innovation</span>
+            <span className="rounded border border-line bg-surface-2 px-2 py-1">SIH26223 · Student Innovation</span>
             <span className="rounded border border-line bg-surface-2 px-2 py-1">Disaster Management</span>
           </p>
 

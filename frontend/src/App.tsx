@@ -113,7 +113,7 @@ export default function App() {
       {route === '/evidence' ? <Evidence /> : route === '/team' ? <Team /> : <Landing />}
       <footer className="border-t border-line px-5 py-6 text-center text-2xs text-ink-3">
         Closed-Circuit · Team 173301 · VIT Bhopal ·
-        {' '}Smart India Hackathon 2026 · Student Innovation · Disaster Management
+        {' '}Smart India Hackathon 2026 · SIH26223 · Student Innovation — Disaster Management
       </footer>
     </div>
   );

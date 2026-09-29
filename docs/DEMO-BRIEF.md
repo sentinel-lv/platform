@@ -8,6 +8,9 @@ not recalled from the plan.
 - Frontend: `https://platform-ebon-six.vercel.app`
 - Backend: `https://platform-wh3g.onrender.com` (free tier — **sleeps**; warm it)
 
+**Submission:** SIH 2026 · PS **SIH26223** (Student Innovation — Disaster Management) ·
+Theme Disaster Management · PS Category Hardware · Team **173301**, Closed-Circuit.
+
 **The one-line pitch:** a snapped low-voltage conductor draws less than the trip
 current, so the fuse stays silent while the wire stays live. Closed-Circuit stops
 measuring current and measures the conductor's electric field instead.

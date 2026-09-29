@@ -29,7 +29,10 @@ export default function Console() {
   // Nothing has arrived yet — a cold-starting free-tier backend can sit here
   // for several seconds, so the wait gets the boot animation rather than an
   // empty grid of panels.
-  const booting = useFeeder((s) => s.order.length === 0);
+  // Geometry is what the map is made of. The stream can deliver telemetry
+  // before /feeders returns, which would otherwise render an empty map while
+  // the header cheerfully reported "12/12 normal".
+  const booting = useFeeder((s) => s.poles.length === 0 || s.backend !== 'live');
   // A render decision, not a CSS one: two copies of ScenarioPanel in the DOM
   // duplicated every data-testid and mounted the panel twice.
   const isDesktop = useIsDesktop();
@@ -49,7 +52,7 @@ export default function Console() {
       <CommandBar />
       {booting ? (
         <div className="min-h-0 flex-1">
-          <BootScreen note="Waking the feeder service…" />
+          <BootScreen />
         </div>
       ) : (
       <>

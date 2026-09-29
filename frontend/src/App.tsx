@@ -112,8 +112,8 @@ export default function App() {
       <SiteNav route={route} />
       {route === '/evidence' ? <Evidence /> : route === '/team' ? <Team /> : <Landing />}
       <footer className="border-t border-line px-5 py-6 text-center text-2xs text-ink-3">
-        Closed-Circuit · Team VITBSIH26-388 · VIT Bhopal ·
-        {' '}Smart India Hackathon 2026 · Open Innovation · Disaster Management
+        Closed-Circuit · Team 173301 · VIT Bhopal ·
+        {' '}Smart India Hackathon 2026 · Student Innovation · Disaster Management
       </footer>
     </div>
   );

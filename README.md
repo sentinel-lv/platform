@@ -1,7 +1,7 @@
 # Closed-Circuit — Detection and automated isolation of broken Low-Voltage AC overhead distribution conductors
 
-**Smart India Hackathon 2026 (9th edition) · Team ID VITBSIH26-388**
-**Theme: Disaster Management · Category: Open Innovation · Self-proposed problem statement**
+**Smart India Hackathon 2026 · Team ID 173301 · Team Closed-Circuit**
+**Problem Statement: Student Innovation · Theme: Disaster Management · PS Category: Hardware**
 **Mentor: Dr. Abha Trivedi, SCAI, VIT Bhopal University**
 
 ## 1. The problem in one paragraph

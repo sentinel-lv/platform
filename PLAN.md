@@ -1,6 +1,6 @@
 # PLAN.md — Closed-Circuit build plan (SIH 2026)
 
-Team VITBSIH26-388 · Open Innovation / Disaster Management · self-proposed problem · Mentor Dr. Abha Trivedi.
+Team 173301 (Closed-Circuit) · Student Innovation · Theme Disaster Management · PS Category Hardware · Mentor Dr. Abha Trivedi.
 Derived strictly from `README.pdf` (overview), `README (1)–(8).pdf` (six tracks), `PROTOCOL.pdf` (contract), `CONTRIBUTING.pdf` (process). `docs/PROTOCOL.md` is frozen (M0); everything else follows it.
 
 ## 0. Targets (README §2)

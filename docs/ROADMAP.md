@@ -4,7 +4,7 @@ Written 2026-09-27, after a verification pass that actually ran everything
 rather than reading the task lists. Where this disagrees with `PLAN.md §10`,
 this file is newer.
 
-Team VITBSIH26-388 · SIH 2026 · **Open Innovation** · Disaster Management.
+Team 173301 (Closed-Circuit) · SIH 2026 · **Student Innovation** · Theme Disaster Management · PS Category Hardware.
 
 ---
 
